@@ -1,0 +1,952 @@
+package io.github.necrashter.natural_revenge;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
+import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Queue;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import io.github.necrashter.natural_revenge.world.GameWorld;
+import io.github.necrashter.natural_revenge.world.GameWorldRenderer;
+import io.github.necrashter.natural_revenge.world.LowResWorldRenderer;
+import io.github.necrashter.natural_revenge.world.levels.ScriptedEvent;
+import io.github.necrashter.natural_revenge.world.player.PlayerWeapon;
+import io.github.necrashter.natural_revenge.world.player.Firearm;
+
+public class GameScreen implements Screen {
+    public static final float CROSSHAIR_SIZE = 48f;
+    final Main game;
+
+    public final GameWorld world;
+    private GameWorldRenderer worldRenderer;
+
+    private final Stage stage;
+
+    private final WidgetGroup hudGroup;
+    private final Label topLeftLabel;
+    private final Label topRightLabel;
+    private final Label bottomLabel;
+
+    private final WidgetGroup subtitleGroup;
+    private final Label subtitleLabel;
+
+    private final Dialog pauseDialog;
+    private Dialog currentDialog = null;
+    private final Queue<Dialog> dialogQueue = new Queue<>();
+    private boolean wasPausedBeforeDialog = false;
+
+    private final Image hurtOverlay;
+
+    public Touchpad movementTouch;
+
+    public GameScreen(final Main game, final GameWorld world) {
+        this.game = game;
+
+        this.world = world;
+        world.screen = this;
+        worldRenderer = new LowResWorldRenderer(world);
+//        worldRenderer = world;
+
+        stage = new Stage(new ScreenViewport());
+
+        {
+            hurtOverlay = new Image(Main.assets.hurtOverlay);
+            Container<Image> container = new Container<>(hurtOverlay);
+            container.setFillParent(true);
+            container.fill();
+            stage.addActor(container);
+            hurtOverlay.setColor(1, 1, 1, 0);
+        }
+
+        {
+            hudGroup = new WidgetGroup();
+            hudGroup.setFillParent(true);
+
+            topLeftLabel = new Label("f", game.skin);
+            Container<Label> labelContainer = new Container<>(topLeftLabel);
+            labelContainer.setFillParent(true);
+            labelContainer.top().left().pad(20);
+            hudGroup.addActor(labelContainer);
+
+            topRightLabel = new Label("f", game.skin);
+            topRightLabel.setAlignment(Align.right);
+            Container<Label> labelContainer2 = new Container<>(topRightLabel);
+            labelContainer2.setFillParent(true);
+            labelContainer2.top().right().pad(20);
+            hudGroup.addActor(labelContainer2);
+
+            bottomLabel = new Label("", game.skin);
+            Container<Label> labelContainer1 = new Container<>(bottomLabel);
+            labelContainer1.setFillParent(true);
+            labelContainer1.center().padTop(200f);
+            hudGroup.addActor(labelContainer1);
+
+            Texture crosshairTexture = Main.assets.get("crosshair010.png");
+            Image crosshairImage = new Image(crosshairTexture);
+            Container<Image> crosshairContainer = new Container<>(crosshairImage);
+            crosshairContainer.setFillParent(true);
+            crosshairContainer.size(CROSSHAIR_SIZE).center();
+            hudGroup.addActor(crosshairContainer);
+
+            stage.addActor(hudGroup);
+        }
+
+        {
+            subtitleGroup = new WidgetGroup();
+            subtitleGroup.setFillParent(true);
+
+            final Image backgroundImage = new Image(Main.assets.bottomGrad);
+            Container<Image> backgroundContainer = new Container<>(backgroundImage);
+            backgroundContainer.setFillParent(true);
+            backgroundContainer.fill(1.0f, 0.33f).bottom();
+            subtitleGroup.addActor(backgroundContainer);
+
+            subtitleLabel = new Label("", game.skin);
+            Container<Label> labelContainer1 = new Container<>(subtitleLabel);
+            labelContainer1.setFillParent(true);
+            labelContainer1.center().bottom().padBottom(80f);
+            subtitleGroup.addActor(labelContainer1);
+
+            if (Main.isMobile()) {
+                TextButton nextButton = new TextButton("Next", game.skin);
+                nextButton.addListener(new InputListener() {
+                    @Override
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        if (activeSubtitle != null) activeSubtitle.shouldFade = true;
+                        return true;
+                    }
+                });
+                Container<TextButton> nextButtonContainer = new Container<>(nextButton);
+                nextButtonContainer.setFillParent(true);
+                nextButtonContainer.pad(40).align(Align.right | Align.center);
+                subtitleGroup.addActor(nextButtonContainer);
+            } else {
+                Label label1 = new Label("Press SPACE to continue...", game.skin, "old-font", Color.WHITE);
+                Container<Label> labelContainer2 = new Container<>(label1);
+                labelContainer2.setFillParent(true);
+                labelContainer2.center().bottom().padBottom(10f);
+                subtitleGroup.addActor(labelContainer2);
+            }
+
+//            stage.addActor(subtitleGroup);
+
+            subtitleGroup.setColor(1, 1, 1, 0);
+        }
+
+        {
+            pauseDialog = new Dialog("Pause Menu", game.skin);
+
+            pauseDialog.padTop(new GlyphLayout(game.skin.getFont("default-font"),"Pause Menu").height*1.2f);
+            pauseDialog.padLeft(16); pauseDialog.padRight(16);
+
+            {
+                final TextButton button = new TextButton("Resume", game.skin);
+                button.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        togglePause();
+                    }
+                });
+                pauseDialog.getButtonTable().add(button).height(button.getHeight()).width(button.getWidth()).row();
+            }
+
+            {
+                final TextButton button = new TextButton("Restart Level", game.skin);
+                button.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        restart();
+                    }
+                });
+                pauseDialog.getButtonTable().add(button).height(button.getHeight()).width(button.getWidth()).row();
+            }
+
+            {
+                final TextButton button = new TextButton("Weapon Stats", game.skin);
+                button.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        showWeaponInventoryDialog();
+                    }
+                });
+                pauseDialog.getButtonTable().add(button).height(button.getHeight()).width(button.getWidth()).row();
+            }
+
+            {
+                final TextButton button = new TextButton("Options", game.skin);
+                button.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        showOptionsDialog();
+                    }
+                });
+                pauseDialog.getButtonTable().add(button).height(button.getHeight()).width(button.getWidth()).row();
+            }
+
+            {
+                final TextButton button = new TextButton("Exit Game", game.skin);
+                button.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        mainMenu();
+                    }
+                });
+                pauseDialog.getButtonTable().add(button).height(button.getHeight()).width(button.getWidth()).row();
+            }
+        }
+        Gdx.input.setInputProcessor(new InputMultiplexer(
+                stage, world.player.inputAdapter
+        ));
+        if (Main.isMobile()) {
+            movementTouch = new Touchpad(0, game.skin);
+            float touchpadSize = 240f;
+            Container<Touchpad> movementTouchContainer = new Container<>(movementTouch);
+            movementTouchContainer.setFillParent(true);
+            movementTouchContainer.bottom().left().pad(20).size(touchpadSize);
+            hudGroup.addActor(movementTouchContainer);
+
+            TextButton shootButton = new TextButton("JUMP", game.skin);
+            shootButton.addListener(new InputListener() {
+                @Override
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                    if (!world.player.inputAdapter.disabled) {
+                        world.player.jump();
+                    }
+                    return true;
+                }
+            });
+            Container<TextButton> shootButtonContainer = new Container<>(shootButton);
+            shootButtonContainer.setFillParent(true);
+            shootButtonContainer.pad(40).align(Align.bottomRight);
+            hudGroup.addActor(shootButtonContainer);
+
+            TextButton menuButton = new TextButton("Menu", game.skin);
+            menuButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    pause();
+                }
+            });
+            Container<TextButton> menuButtonContainer = new Container<>(menuButton);
+            menuButtonContainer.setFillParent(true);
+            menuButtonContainer.pad(20).align(Align.center | Align.top);
+            stage.addActor(menuButtonContainer);
+
+            TextButton useButton = new TextButton("USE", game.skin);
+            useButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    world.player.useKeyPressed();
+                }
+            });
+            TextButton reloadButton = new TextButton("RELOAD", game.skin);
+            reloadButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    world.player.shouldReload = true;
+                }
+            });
+            TextButton nextWeaponButton = new TextButton("SWITCH", game.skin);
+            nextWeaponButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    world.player.nextWeapon();
+                }
+            });
+            Table topLeftTable = new Table(game.skin);
+            topLeftTable.setFillParent(true);
+            topLeftTable.pad(20).align(Align.topRight);
+            topLeftTable.add(useButton).pad(5).row();
+            topLeftTable.add(nextWeaponButton).pad(5).row();
+            topLeftTable.add(reloadButton).pad(5).row();
+            hudGroup.addActor(topLeftTable);
+        }
+        setPaused(false);
+
+        world.addedToScreen();
+    }
+
+    public ProgressBar progressBar;
+    public Label progressBarLabel;
+    public Container<ProgressBar> progressBarContainer;
+    public Container<Label> progressBarLabelContainer;
+    public void addProgress(String name, float max) {
+        progressBar = new ProgressBar(0.0f, max, 1.0f, false, game.skin2);
+        progressBarLabel = new Label(name, game.skin);
+        progressBarContainer = new Container<>(progressBar);
+        progressBarContainer.setFillParent(true);
+        progressBarContainer.center().top().padTop(90f);
+        progressBarContainer.width(560f);
+        progressBarLabelContainer = new Container<>(progressBarLabel);
+        progressBarLabelContainer.setFillParent(true);
+        progressBarLabelContainer.center().top().padTop(90f);
+        hudGroup.addActor(progressBarContainer);
+        hudGroup.addActor(progressBarLabelContainer);
+    }
+    public void removeProgress() {
+        if (progressBarContainer != null) {
+            progressBarContainer.remove();
+            progressBarContainer = null;
+        }
+        if (progressBarLabelContainer != null) {
+            progressBarLabelContainer.remove();
+            progressBarLabelContainer = null;
+        }
+    }
+
+    public void getPlayerMovement(Vector2 movement) {
+        float x = 0.0f;
+        float y = 0.0f;
+        if (movementTouch != null) {
+            x += movementTouch.getKnobPercentY();
+            y += movementTouch.getKnobPercentX();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+            x += 1.0f;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            x -= 1.0f;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            y += 1.0f;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            y -= 1.0f;
+        }
+        movement.set(x, y);
+        if (movement.len2() > 1) movement.nor();
+    }
+
+    @Override
+    public void render(float delta) {
+        // Input handling
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            if (currentDialog != null) {
+                currentDialog.hide();
+            } else {
+                togglePause();
+            }
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
+            if (currentDialog != null) {
+                currentDialog.hide();
+            } else {
+                showWeaponInventoryDialog();
+            }
+        }
+        if (!world.player.inputAdapter.disabled) {
+            if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+                delta *= 0.1f;
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
+                delta *= 0.1f;
+            }
+            getPlayerMovement(world.player.movementInput);
+        } else {
+            world.player.movementInput.setZero();
+        }
+
+        // Update
+        if (currentDialog != null && currentDialog.getStage() == null) {
+            currentDialog = null;
+            if (dialogQueue.notEmpty()) {
+                showDialog(dialogQueue.removeFirst(), false);
+            } else {
+                if (!wasPausedBeforeDialog) {
+                    setPaused(false);
+                }
+            }
+        }
+        world.update(delta);
+
+        bottomLabel.setText(world.player.getHoverInfo());
+        stage.act(delta);
+
+//        double s = (double) TimeUtils.millis() / 500.0;
+//        double y = 100 * Math.sin(s) + 100;
+//        double b = y > 100 ? (y - 100) * 0.01 : 0;
+//        ScreenUtils.clear((float)b, (float)b, (float)b, 1);
+//        ScreenUtils.clear(1, 0, 0, 1, true);
+
+        worldRenderer.render();
+
+        stage.getViewport().apply();
+        stage.draw();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        world.buildHudText(stringBuilder);
+        topLeftLabel.setText(stringBuilder);
+//        stringBuilder.append("FPS: ").append(Gdx.graphics.getFramesPerSecond());
+//        stringBuilder.append(" Visible: ").append(world.visibleCount);
+//        stringBuilder.append('\n');
+//        stringBuilder.append("x ").append(world.player.hitBox.position.x);
+//        stringBuilder.append(" y ").append(world.player.hitBox.position.y);
+//        stringBuilder.append(" z ").append(world.player.hitBox.position.z);
+//        stringBuilder.append('\n');
+//        stringBuilder.append("Hit: ").append(world.player.aimIntersection.type);
+//        stringBuilder.append(" at t ").append(world.player.aimIntersection.t);
+//        stringBuilder.append('\n');
+
+        stringBuilder = new StringBuilder();
+        if (world.player != null) world.player.buildWeaponText(stringBuilder);
+        topRightLabel.setText(stringBuilder);
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        worldRenderer.screenResize(width, height);
+        stage.getViewport().update(width, height, true);
+    }
+
+    public void togglePause() {
+        setPaused(!world.paused);
+        if (world.paused) pauseDialog.show(stage);
+        else pauseDialog.hide();
+    }
+
+    @Override
+    public void pause() {
+        if (world.paused) return;
+        pauseDialog.show(stage);
+        setPaused(true);
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    public void setPaused(boolean v) {
+        if (world.paused == v) return;
+        world.paused = v;
+        if (!Main.isMobile()) Gdx.input.setCursorCatched(!world.paused);
+        if (world.paused) {
+            Main.music.paused();
+        } else {
+            Main.music.resumed();
+            world.player.resetMouse();
+        }
+    }
+
+    public void showDialog(Dialog dialog, boolean pause) {
+        if (currentDialog != null) {
+            dialogQueue.addLast(dialog);
+        } else {
+            currentDialog = dialog;
+            dialog.show(stage);
+            wasPausedBeforeDialog = world.paused; // tab key
+            if (pause) setPaused(true);
+        }
+    }
+
+    @Override
+    public void show() {
+
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
+    @Override
+    public void dispose() {
+        // World renderer is supposed to dispose world as well.
+        worldRenderer.dispose();
+        stage.dispose();
+    }
+
+    public void playerDied() {
+        final Dialog autoRespawnDialog = new Dialog("You Died!", game.skin);
+        final Label countdownLabel = new Label("Respawning in 5...", game.skin);
+        autoRespawnDialog.getContentTable().add(countdownLabel).pad(20);
+        showDialog(autoRespawnDialog, false);
+        world.player.inputAdapter.disabled = true;
+        world.player.firing1 = false;
+        world.player.firing2 = false;
+
+        // schedule respawn
+        stage.addAction(Actions.sequence(
+            Actions.delay(1f),
+            Actions.run(() -> countdownLabel.setText("Respawning in 4...")),
+            Actions.delay(1f),
+            Actions.run(() -> countdownLabel.setText("Respawning in 3...")),
+            Actions.delay(1f),
+            Actions.run(() -> countdownLabel.setText("Respawning in 2...")),
+            Actions.delay(1f),
+            Actions.run(() -> countdownLabel.setText("Respawning in 1...")),
+            Actions.delay(1f),
+            Actions.run(() -> countdownLabel.setText("Respawning...")),
+            Actions.run(() -> autoRespawnDialog.hide()),
+            Actions.run(() -> {
+                world.player.inputAdapter.disabled = false;
+                world.player.health = world.player.maxHealth;
+                world.player.dead = false;
+                Vector2 spawnPoint = world.randomPointNearPlayer(10f, 20f);
+                world.player.setPosition(spawnPoint.x, spawnPoint.y);
+                world.player.hitBox.position.y += 2f;
+            })
+        ));
+    }
+
+
+//    public void playerDied() {
+//        Dialog dialog = new Dialog("You Died!", game.skin) {
+//            @Override
+//            protected void result(Object object) {
+//                int i = (int) object;
+//                switch (i) {
+//                    case 0: restart(); break;
+//                    case 1: restartEasier(); break;
+//                    default: mainMenu(); break;
+//                }
+//            }
+//        };
+//        dialog.button("Restart", 0);
+//        dialog.getButtonTable().row();
+//        dialog.button("Restart (Easier)", 1);
+//        dialog.getButtonTable().row();
+//        dialog.button("Main Menu", 2);
+//        dialog.padTop(new GlyphLayout(game.skin.getFont("default-font"),"Pause Menu").height*1.2f);
+//        dialog.padLeft(16); dialog.padRight(16);
+//        showDialog(dialog, true);
+//    }
+
+    public void playerHurt() {
+        hurtOverlay.setColor(1, 1, 1, 1);
+        hurtOverlay.clearActions();
+        hurtOverlay.addAction(Actions.fadeOut(0.5f));
+    }
+
+    public void gameWon() {
+        Dialog dialog = new Dialog("Level Complete!", game.skin) {
+            @Override
+            protected void result(Object object) {
+                int i = (int) object;
+                switch (i) {
+                    case 0: nextLevel(); break;
+                    case 1: mainMenu(); break;
+                }
+            }
+        };
+        Label label = new Label(
+        "Most Accurate: (" + Main.float1Decimal(world.statistics.bestAccuracy*100f) + "%)\n"
+            + world.statistics.bestAccuracyName
+            + "\nMost Damage: (" + Main.float1Decimal(world.statistics.mostDamage) + ")\n"
+            + world.statistics.mostDamageName
+        , game.skin);
+        dialog.getContentTable().add(label);
+        dialog.button("Next Level", 0);
+        dialog.getButtonTable().row();
+        dialog.button("Main Menu", 1);
+        dialog.padTop(new GlyphLayout(game.skin.getFont("default-font"),"Pause Menu").height*1.2f);
+        dialog.padLeft(16); dialog.padRight(16);
+        showDialog(dialog, true);
+    }
+
+    public void mainMenu() {
+        game.setScreen(new MenuScreen(game));
+        dispose();
+    }
+
+    public void restart() {
+        game.setScreen(game.getLevel(world.level, world.easiness));
+        dispose();
+    }
+
+    public void restartEasier() {
+        game.setScreen(game.getLevel(world.level, world.easiness + 1.0f));
+        dispose();
+    }
+
+    public void nextLevel() {
+        game.setScreen(game.getLevel(world.level + 1, 1.0f));
+        dispose();
+    }
+
+    private SubtitleScriptedEvent activeSubtitle = null;
+    public class SubtitleScriptedEvent implements ScriptedEvent {
+        final String text;
+        boolean shouldFade = false;
+
+        public SubtitleScriptedEvent(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public void activate() {
+            activeSubtitle = this;
+            subtitleLabel.setText(text);
+            if (subtitleGroup.getStage() == stage) {
+                hudGroup.clearActions();
+                subtitleGroup.clearActions();
+                return;
+            }
+            hudGroup.addAction(Actions.fadeOut(0.3f));
+            stage.addActor(subtitleGroup);
+            subtitleGroup.addAction(Actions.fadeIn(0.3f));
+        }
+
+        @Override
+        public boolean update(float delta) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || shouldFade) {
+                activeSubtitle = null;
+                hudGroup.addAction(Actions.fadeIn(0.3f));
+                subtitleGroup.addAction(Actions.fadeOut(0.3f));
+                subtitleGroup.addAction(Actions.removeActor());
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public SubtitleScriptedEvent subtitle(String text) {
+        return new SubtitleScriptedEvent(text);
+    }
+
+    public class WinGameEvent extends ScriptedEvent.OneTimeEvent {
+        @Override
+        public void activate() {
+            gameWon();
+        }
+    }
+
+    public WinGameEvent winGameEvent() {
+        return new WinGameEvent();
+    }
+
+    private void showOptionsDialog() {
+        final Dialog optionsDialog = new Dialog("Options", game.skin);
+
+        // Invert Mouse
+        final CheckBox invertMouseCheckbox = new CheckBox(" Invert Mouse Y", game.skin);
+        invertMouseCheckbox.setChecked(Main.invertMouseY);
+        invertMouseCheckbox.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Main.invertMouseY = invertMouseCheckbox.isChecked();
+            }
+        });
+
+        // Sensitivity Slider
+        // --- Sensitivity Slider ---
+        final Label sensitivityLabel = new Label("Sensitivity:", game.skin);
+        // Display sensitivity with one or two decimal places for better granularity
+        final Label mouseSensitivityLabel = new Label(Main.float2Decimals(Main.mouseSensitivity), game.skin);
+
+        // Adjust min, max, and step for sensitivity.
+        // Example: 0.1f (very slow) to 2.0f (very fast), with steps of 0.05f
+        final Slider sensitivitySlider = new Slider(0.1f, 2.0f, 0.05f, false, game.skin);
+        sensitivitySlider.setValue(Main.mouseSensitivity);
+        sensitivitySlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Main.mouseSensitivity = sensitivitySlider.getValue();
+                mouseSensitivityLabel.setText(Main.float2Decimals(Main.mouseSensitivity));
+            }
+        });
+
+        // --- End Sensitivity Slider ---
+
+        // --- FOV Slider ---
+        final Label fovLabel = new Label("Field of View:", game.skin);
+        final Label fovValue = new Label(String.valueOf((int)Main.fov), game.skin);
+
+        final Slider fovSlider = new Slider(30f, 120f, 1f, false, game.skin); // typical FOV range
+        fovSlider.setValue(Main.fov);
+        fovSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Main.fov = fovSlider.getValue();
+                fovValue.setText(String.valueOf((int)Main.fov));
+                world.cam.fieldOfView = Main.fov;
+                world.cam.update();
+            }
+        });
+
+        // Layout FOV
+        Table fovRow = new Table();
+        fovRow.add(fovLabel).padRight(10);
+        fovRow.add(fovSlider).width(200).padRight(10);
+        fovRow.add(fovValue).width(50);
+
+        // Layout inside dialog
+        Table content = optionsDialog.getContentTable();
+        content.pad(20);
+
+        content.add(invertMouseCheckbox).left();
+        content.row().padTop(20);
+
+        Table sensitivityRow = new Table();
+        sensitivityRow.add(sensitivityLabel).padRight(10);
+        sensitivityRow.add(sensitivitySlider).width(200).padRight(10);
+        sensitivityRow.add(mouseSensitivityLabel).width(50);
+        content.add(sensitivityRow).left();
+        content.row().padTop(20);
+
+        content.add(fovRow).left();
+
+        optionsDialog.button("Close"); // Adds a close button
+        optionsDialog.show(stage);
+    }
+
+    private void showWeaponInventoryDialog() {
+        final Dialog weaponDialog = new Dialog("Current Weapon", game.skin);
+
+        // Set dialog size to fit screen (1280x720)
+        weaponDialog.setSize(900, 600);
+        weaponDialog.setPosition((1280 - 900) / 2, (720 - 600) / 2);
+
+        // Create content table
+        Table contentTable = new Table(game.skin);
+        contentTable.pad(30);
+
+        // Check if player has an equipped weapon
+        if (world.player.activeWeapon == null) {
+            Label noWeaponLabel = new Label("No weapon equipped", game.skin);
+            noWeaponLabel.setFontScale(1.5f);
+            noWeaponLabel.setColor(Color.GRAY);
+            contentTable.add(noWeaponLabel).center().padTop(100);
+        } else {
+            PlayerWeapon weapon = world.player.activeWeapon;
+
+            // Create main weapon info section
+            Table weaponInfoTable = new Table(game.skin);
+
+            // Weapon name with type indicator
+            String weaponName = getWeaponDisplayName(weapon);
+            String weaponType = getWeaponType(weapon);
+            Label weaponNameLabel = new Label(weaponName, game.skin);
+            weaponNameLabel.setFontScale(1.4f);
+            weaponNameLabel.setColor(Color.YELLOW);
+
+            Label weaponTypeLabel = new Label("(" + weaponType + ")", game.skin);
+            weaponTypeLabel.setFontScale(1.0f);
+            weaponTypeLabel.setColor(Color.LIGHT_GRAY);
+
+            weaponInfoTable.add(weaponNameLabel).center().row();
+            weaponInfoTable.add(weaponTypeLabel).center().padTop(5).row();
+
+            contentTable.add(weaponInfoTable).center().padBottom(40).row();
+
+            // Create stats section
+            Table statsTable = createDetailedStatsTable(weapon);
+            contentTable.add(statsTable).expand().fill();
+
+            if (weapon instanceof Firearm) {
+                contentTable.row();
+                Table calculatedTable = createCalculatedStats((Firearm) weapon);
+                contentTable.add(calculatedTable).expand().fill();
+            }
+        }
+
+        // Add content to dialog
+        weaponDialog.getContentTable().add(contentTable);
+
+        // Add close button
+        TextButton closeButton = new TextButton("Close", game.skin);
+        closeButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                weaponDialog.hide();
+            }
+        });
+        weaponDialog.button(closeButton);
+
+        // Use the proper dialog management system instead of directly showing
+        showDialog(weaponDialog, true);
+    }
+
+    private String getWeaponType(PlayerWeapon weapon) {
+        if (weapon instanceof Firearm) {
+            Firearm firearm = (Firearm) weapon;
+            if (firearm.name.toLowerCase().contains("pistol")) {
+                return "Pistol";
+            } else if (firearm.name.toLowerCase().contains("rifle")) {
+                return "Rifle";
+            } else {
+                return "Firearm";
+            }
+        } else {
+            return "Unknown";
+        }
+    }
+
+    private Table createDetailedStatsTable(PlayerWeapon weapon) {
+        Table statsTable = new Table(game.skin);
+        statsTable.pad(20);
+
+        if (weapon instanceof Firearm) {
+            Firearm firearm = (Firearm) weapon;
+
+            // Primary stats section
+            Table primaryStats = new Table(game.skin);
+            primaryStats.pad(10);
+            primaryStats.setBackground(game.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
+
+            Label primaryTitle = new Label("PRIMARY STATS", game.skin);
+            primaryTitle.setFontScale(1.1f);
+            primaryTitle.setColor(Color.ORANGE);
+            primaryStats.add(primaryTitle).center().padBottom(15).row();
+
+            // Damage with color coding
+            float damageRatio = Math.min(firearm.damage / 10.0f, 1.0f); // Normalize to 0-1
+//            Color damageColor = new Color(1.0f, 1.0f - damageRatio * 0.5f, 0.0f, 1.0f); // Green to Red
+            Label damageLabel = new Label("Damage: " + Main.float1Decimal(firearm.damage), game.skin);
+//            damageLabel.setColor(damageColor);
+//            damageLabel.setFontScale(1.0f);
+            primaryStats.add(damageLabel).left().padBottom(8).row();
+
+            // Ammo section with progress bar
+            Label ammoLabel = new Label("Ammo: " + firearm.ammoInClip + "/" + firearm.maxAmmoInClip, game.skin);
+            ammoLabel.setFontScale(1.0f);
+            primaryStats.add(ammoLabel).left().padBottom(5).row();
+
+//            ProgressBar ammoBar = new ProgressBar(0, firearm.maxAmmoInClip, 1, false, game.skin2);
+//            ammoBar.setValue(firearm.ammoInClip);
+//            ammoBar.setSize(200, 15);
+//            primaryStats.add(ammoBar).width(200).height(15).padBottom(8).row();
+
+            // Clips
+            Label clipsLabel = new Label("Clips: " + firearm.clips, game.skin);
+            clipsLabel.setFontScale(1.0f);
+            primaryStats.add(clipsLabel).left().row();
+
+            statsTable.add(primaryStats).width(300).height(230).padRight(20);
+
+            // Secondary stats section
+            Table secondaryStats = new Table(game.skin);
+            secondaryStats.pad(10);
+            secondaryStats.setBackground(game.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
+
+            Label secondaryTitle = new Label("WEAPON PROPERTIES", game.skin);
+            secondaryTitle.setFontScale(1.1f);
+            secondaryTitle.setColor(Color.CYAN);
+            secondaryStats.add(secondaryTitle).center().padBottom(15).row();
+
+            // Fire rate with color coding
+            float fireRateRatio = Math.min(firearm.recoverySpeed / 10.0f, 1.0f);
+//            Color fireRateColor = new Color(0.0f, 0.5f + fireRateRatio * 0.5f, 1.0f, 1.0f); // Blue to Cyan
+            Label fireRateLabel = new Label("Fire Rate: " + Main.float1Decimal(firearm.recoverySpeed), game.skin);
+//            fireRateLabel.setColor(fireRateColor);
+            fireRateLabel.setFontScale(1.0f);
+            secondaryStats.add(fireRateLabel).left().padBottom(8).row();
+
+            // Reload speed
+            Label reloadLabel = new Label("Reload Speed: " + Main.float1Decimal(firearm.reloadSpeed), game.skin);
+            reloadLabel.setFontScale(1.0f);
+            secondaryStats.add(reloadLabel).left().padBottom(8).row();
+
+            // Spread
+            Label spreadLabel = new Label("Spread: " + Main.float2Decimals(firearm.spread), game.skin);
+            spreadLabel.setFontScale(1.0f);
+            secondaryStats.add(spreadLabel).left().padBottom(8).row();
+
+            // Bullets per shot
+            if (firearm.bulletsPerShot > 1) {
+                Label burstLabel = new Label("Bullet/Shot: " + firearm.bulletsPerShot, game.skin);
+//                burstLabel.setColor(Color.ORANGE);
+                burstLabel.setFontScale(1.0f);
+                secondaryStats.add(burstLabel).left().padBottom(8).row();
+            }
+
+            if (firearm.burstCount > 1) {
+                Label burstLabel = new Label("Burst: " + firearm.burstCount + " bullets", game.skin);
+//                burstLabel.setColor(Color.ORANGE);
+                burstLabel.setFontScale(1.0f);
+                secondaryStats.add(burstLabel).left().padBottom(8).row();
+            }
+
+            // Knockback
+            if (Math.abs(firearm.knockback) > 0.1f) {
+                Label knockLabel = new Label("Knockback: " + Main.float2Decimals(Math.abs(firearm.knockback)), game.skin);
+                knockLabel.setFontScale(1.0f);
+                secondaryStats.add(knockLabel).left().row();
+            }
+
+            statsTable.add(secondaryStats).width(300).height(230).padLeft(20);
+        }
+
+        return statsTable;
+    }
+    private Table createCalculatedStats(Firearm firearm) {
+        Table calculatedStats = new Table(game.skin);
+        calculatedStats.pad(10);
+        calculatedStats.setBackground(game.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
+
+        float dps = firearm.computeDPS();
+        float[] distances = new float[] {1f, 5f, 10f, 15f, 20f, 25f};
+
+        // Top-left empty cell
+        Label distanceTitle = new Label("Distance", game.skin);
+        calculatedStats.add(distanceTitle).padRight(16);
+
+        // Add column headers: distances
+        for (float distance : distances) {
+            Label distanceLabel = new Label(String.valueOf((int)distance) + 'm', game.skin);
+            calculatedStats.add(distanceLabel).center().padRight(16);
+        }
+        calculatedStats.row().padBottom(16);
+
+        // Accuracy row
+        Label accuracyTitle = new Label("Accuracy", game.skin);
+        calculatedStats.add(accuracyTitle).padRight(16);
+        for (float distance : distances) {
+            float accuracy = firearm.computeAccuracy(distance, 0.375f);
+            Color accuracyColor = Color.RED.cpy().lerp(Color.GREEN, MathUtils.clamp((accuracy - .5f) * 2f, 0f, 1f));
+            Label accuracyLabel = new Label(String.valueOf(MathUtils.round(accuracy * 100f)) + '%', game.skin);
+            accuracyLabel.setColor(accuracyColor);
+            accuracyLabel.setFontScale(1.0f);
+            calculatedStats.add(accuracyLabel).center().padRight(16);
+        }
+        calculatedStats.row();
+
+        // DPS row
+        Label dpsTitle = new Label("DPS", game.skin);
+        calculatedStats.add(dpsTitle).padRight(16);
+        for (float distance : distances) {
+            float accuracy = firearm.computeAccuracy(distance, 0.375f);
+            float effectiveDps = accuracy * dps;
+            Color dpsColor = Color.RED.cpy().lerp(Color.GREEN, MathUtils.clamp((effectiveDps - 5f) / 50f, 0f, 1f));
+            Label dpsLabel = new Label(Main.float2Decimals(effectiveDps), game.skin);
+            dpsLabel.setColor(dpsColor);
+            dpsLabel.setFontScale(1.0f);
+            calculatedStats.add(dpsLabel).center().padRight(16);
+        }
+
+        return calculatedStats;
+    }
+
+
+    private String getWeaponDisplayName(PlayerWeapon weapon) {
+        if (weapon instanceof Firearm) {
+            return ((Firearm) weapon).name;
+        } else {
+            return "Unknown Weapon";
+        }
+    }
+}

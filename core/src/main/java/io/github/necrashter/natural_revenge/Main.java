@@ -1,0 +1,97 @@
+package io.github.necrashter.natural_revenge;
+
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import io.github.necrashter.natural_revenge.world.levels.Level1Swamp;
+import io.github.necrashter.natural_revenge.world.levels.Level2Flying;
+import io.github.necrashter.natural_revenge.world.levels.LevelBossRush;
+import io.github.necrashter.natural_revenge.world.player.EnumeratingRoller;
+import io.github.necrashter.natural_revenge.world.player.RandomRoller;
+
+public class Main extends Game {
+    public static AssetManager2 assets;
+    public static RandomRoller randomRoller;
+    public static MusicManager music;
+    public static boolean invertMouseY = false;
+    public static float mouseSensitivity = 1.0f; // defaults
+    public static float fov = 90f; // default FOV
+    private final String[] args;
+    public Skin skin;
+    public Skin skin2;
+
+    TextureAtlas skinAtlas;
+
+    public Main(String[] args) {
+        super();
+        this.args = args;
+    }
+
+    @Override
+    public void create () {
+        skinAtlas = new TextureAtlas(Gdx.files.internal("uiskin.atlas"));
+        skin = new Skin();
+        skin.add("default-font", new BitmapFont(Gdx.files.internal("ui/mono.fnt")), BitmapFont.class);
+        skin.addRegions(skinAtlas);
+        skin.load(Gdx.files.internal("uiskin.json"));
+        skin2 = new Skin(Gdx.files.internal("biological-attack/biological-attack-ui.json"));
+
+        assets = new AssetManager2();
+        music = new MusicManager();
+        randomRoller = new RandomRoller();
+        // loading
+        while (!assets.update());
+        assets.done();
+
+        //this.setScreen(new GameScreen(this, new LevelBossRush(this, 1, 1)));
+
+        if (args.length == 0) {
+            this.setScreen(new MenuScreen(this));
+        } else if (args[0].equals("all-weapons")) {
+            String filename = args.length > 1 ? args[1] : "all-weapons.csv";
+            EnumeratingRoller.saveAllWeaponsTable(filename);
+            System.exit(0);
+        } else {
+            System.err.println("Unknown CLI arguments.");
+            System.exit(1);
+        }
+    }
+
+    @Override
+    public void render () {
+        float delta = Gdx.graphics.getDeltaTime();
+        music.update(delta);
+        if (screen != null) screen.render(delta);
+    }
+
+    @Override
+    public void dispose () {
+        skin.dispose();
+        skinAtlas.dispose();
+        assets.dispose();
+    }
+
+    public static boolean isMobile() {
+        return Gdx.app.getType().equals(Application.ApplicationType.Android) || Gdx.app.getType().equals(Application.ApplicationType.iOS);
+    }
+
+    public Screen getLevel(int level, float easiness) {
+        switch (level) {
+            case 1: return new GameScreen(this, new Level1Swamp(this, 1, easiness));
+            case 2: return new GameScreen(this, new Level2Flying(this, 2, easiness));
+            case 3: return new GameScreen(this, new LevelBossRush(this, 3, easiness));
+            default: return new MenuScreen(this);
+        }
+    }
+
+    public static String float2Decimals(float f) {
+        return String.valueOf((int)f) + '.' + (int) ((f - (int) f) * 100f);
+    }
+    public static String float1Decimal(float f) {
+        return String.valueOf((int)f) + '.' + (int) ((f - (int) f) * 10f);
+    }
+}
