@@ -32,8 +32,9 @@ android {
   }
   defaultConfig {
     applicationId 'io.github.necrashter.natural_revenge'
-    minSdkVersion 21
+    minSdkVersion 19
     targetSdkVersion 35
+    multiDexEnabled true
     versionCode 1
     versionName "1.0"
   }
