@@ -14,6 +14,33 @@ public class OptionsDialog extends Dialog {
     public OptionsDialog(Main game, GameWorld world) {
         super("Options", game.skin);
 
+        // Layout inside dialog
+        Table content = getContentTable();
+        content.pad(20);
+
+        // --- Volume Slider ---
+        final Label volumeLabel = new Label("Music Volume:", game.skin);
+        final Label volumeValue = new Label(String.valueOf((int)(Main.music.getVolume() * 100)), game.skin);
+
+        final Slider volumeSlider = new Slider(0f, 100f, 1f, false, game.skin); // volume range from 0 to 100
+        volumeSlider.setValue(Main.music.getVolume() * 100);
+        volumeSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                float volume = volumeSlider.getValue() / 100f;
+                Main.music.setVolume(volume);
+                volumeValue.setText(String.valueOf((int)(volume * 100)));
+            }
+        });
+
+        // Layout Volume
+        Table volumeRow = new Table();
+        volumeRow.add(volumeLabel).padRight(10);
+        volumeRow.add(volumeSlider).width(200).padRight(10);
+        volumeRow.add(volumeValue).width(50);
+        content.add(volumeRow).left();
+        content.row().padTop(20);
+
         // Invert Mouse
         final CheckBox invertMouseCheckbox = new CheckBox(" Invert Mouse Y", game.skin);
         invertMouseCheckbox.setChecked(Main.invertMouseY);
@@ -68,9 +95,6 @@ public class OptionsDialog extends Dialog {
         fovRow.add(fovSlider).width(200).padRight(10);
         fovRow.add(fovValue).width(50);
 
-        // Layout inside dialog
-        Table content = getContentTable();
-        content.pad(20);
 
         content.add(invertMouseCheckbox).left();
         content.row().padTop(20);

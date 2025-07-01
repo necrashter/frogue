@@ -9,6 +9,7 @@ public class MusicManager {
     public float progress = 0.0f;
     public Music current = null;
     public Music next = null;
+    private float volume = 1.0f;
 
     private enum State {
         Idle,
@@ -23,7 +24,7 @@ public class MusicManager {
 
     public void start(Music music) {
         if (current == null) {
-            music.setVolume(1.0f);
+            music.setVolume(volume);
             music.setLooping(true);
             music.play();
             current = music;
@@ -51,14 +52,14 @@ public class MusicManager {
     public void update(float delta) {
         if (state == State.FadingIn) {
             progress += delta;
-            current.setVolume(Math.min(1.0f, progress));
+            current.setVolume(volume * Math.min(1.0f, progress));
             if (progress >= 1) {
                 progress = 0;
                 state = State.Idle;
             }
         } else if (state == State.FadingOut) {
             progress += delta;
-            current.setVolume(Math.max(0.0f, 1.0f - progress));
+            current.setVolume(volume * Math.max(0.0f, 1.0f - progress));
             if (progress >= 1) {
                 progress = 0;
                 state = State.Idle;
@@ -66,7 +67,7 @@ public class MusicManager {
                 if (next != null) {
                     current = next;
                     next = null;
-                    current.setVolume(1.0f);
+                    current.setVolume(volume);
                     current.setLooping(true);
                     current.play();
                 } else {
@@ -81,5 +82,16 @@ public class MusicManager {
     }
     public void resumed() {
 
+    }
+
+    public float getVolume() {
+        return volume;
+    }
+
+    public void setVolume(float v) {
+        volume = v;
+        if (state == State.Idle && current != null) {
+            current.setVolume(volume);
+        }
     }
 }
