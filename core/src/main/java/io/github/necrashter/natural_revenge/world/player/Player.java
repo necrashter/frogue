@@ -363,7 +363,7 @@ public class Player extends GameEntity {
         stringBuilder.append('\n');
     }
 
-    public void buildWeaponText(StringBuilder stringBuilder) {
+    public void buildWeaponsText(StringBuilder stringBuilder) {
         for (int i = 0; i < maximumWeapons; ++i) {
             if (i < weapons.size) {
                 if (i == activeWeaponIndex) {
@@ -376,7 +376,9 @@ public class Player extends GameEntity {
                 stringBuilder.append(" -  ");
             }
         }
-        stringBuilder.append("\n");
+    }
+
+    public void buildWeaponText(StringBuilder stringBuilder) {
         if (activeWeapon != null) {
             activeWeapon.buildText(stringBuilder);
         } else {

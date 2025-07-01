@@ -50,7 +50,9 @@ public class GameScreen implements Screen {
 
     private final WidgetGroup hudGroup;
     private final Label topLeftLabel;
+    private final Label topRightWeaponsLabel;
     private final Label topRightLabel;
+    private final Table topRightTable;
     private final Label bottomLabel;
 
     private final WidgetGroup subtitleGroup;
@@ -94,12 +96,16 @@ public class GameScreen implements Screen {
             labelContainer.top().left().pad(20);
             hudGroup.addActor(labelContainer);
 
+            topRightWeaponsLabel = new Label("f", game.skin);
+            topRightWeaponsLabel.setAlignment(Align.right);
             topRightLabel = new Label("f", game.skin);
             topRightLabel.setAlignment(Align.right);
-            Container<Label> labelContainer2 = new Container<>(topRightLabel);
-            labelContainer2.setFillParent(true);
-            labelContainer2.top().right().pad(20);
-            hudGroup.addActor(labelContainer2);
+            topRightTable = new Table();
+            topRightTable.setFillParent(true);
+            topRightTable.top().right().pad(20);
+            topRightTable.add(topRightWeaponsLabel).right().row();
+            topRightTable.add(topRightLabel).right().row();
+            hudGroup.addActor(topRightTable);
 
             bottomLabel = new Label("", game.skin);
             Container<Label> labelContainer1 = new Container<>(bottomLabel);
@@ -231,8 +237,8 @@ public class GameScreen implements Screen {
             movementTouchContainer.bottom().left().pad(20).size(touchpadSize);
             hudGroup.addActor(movementTouchContainer);
 
-            TextButton shootButton = new TextButton("JUMP", game.skin);
-            shootButton.addListener(new InputListener() {
+            TextButton jumpButton = new TextButton("JUMP", game.skin);
+            jumpButton.addListener(new InputListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     if (!world.player.inputAdapter.disabled) {
@@ -241,7 +247,7 @@ public class GameScreen implements Screen {
                     return true;
                 }
             });
-            Container<TextButton> shootButtonContainer = new Container<>(shootButton);
+            Container<TextButton> shootButtonContainer = new Container<>(jumpButton);
             shootButtonContainer.setFillParent(true);
             shootButtonContainer.pad(40).align(Align.bottomRight);
             hudGroup.addActor(shootButtonContainer);
@@ -272,20 +278,48 @@ public class GameScreen implements Screen {
                     world.player.shouldReload = true;
                 }
             });
-            TextButton nextWeaponButton = new TextButton("SWITCH", game.skin);
+            Container<TextButton> reloadContainer = new Container<>(reloadButton);
+            reloadContainer.setFillParent(true);
+            reloadContainer.pad(20).align(Align.left | Align.center).padBottom(100f);
+            stage.addActor(reloadContainer);
+
+            TextButton prevWeaponButton = new TextButton("PREV", game.skin);
+            prevWeaponButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    world.player.prevWeapon();
+                }
+            });
+            TextButton nextWeaponButton = new TextButton("NEXT", game.skin);
             nextWeaponButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     world.player.nextWeapon();
                 }
             });
-            Table topLeftTable = new Table(game.skin);
-            topLeftTable.setFillParent(true);
-            topLeftTable.pad(20).align(Align.topRight);
-            topLeftTable.add(useButton).pad(5).row();
-            topLeftTable.add(nextWeaponButton).pad(5).row();
-            topLeftTable.add(reloadButton).pad(5).row();
-            hudGroup.addActor(topLeftTable);
+            Table prevNextTable = new Table();
+            prevNextTable.add(prevWeaponButton).padRight(10f);
+            prevNextTable.add(nextWeaponButton);
+            topRightTable.add(prevNextTable).right().row();
+
+            TextButton adsButton = new TextButton("ADS", game.skin);
+            adsButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    world.player.firing2 = !world.player.firing2;
+                }
+            });
+            topRightTable.add(adsButton).right().padTop(32f).row();
+
+            topRightWeaponsLabel.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    int weapon = MathUtils.floor(x / topRightWeaponsLabel.getWidth() * 6f);
+                    if (weapon < 0) weapon = 0;
+                    if (weapon < world.player.weapons.size)
+                        world.player.equipWeapon(weapon);
+                }
+            });
         }
         setPaused(false);
 
@@ -413,9 +447,14 @@ public class GameScreen implements Screen {
 //        stringBuilder.append(" at t ").append(world.player.aimIntersection.t);
 //        stringBuilder.append('\n');
 
-        stringBuilder = new StringBuilder();
-        if (world.player != null) world.player.buildWeaponText(stringBuilder);
-        topRightLabel.setText(stringBuilder);
+        if (world.player != null) {
+            stringBuilder = new StringBuilder();
+            world.player.buildWeaponsText(stringBuilder);
+            topRightWeaponsLabel.setText(stringBuilder);
+            stringBuilder = new StringBuilder();
+            world.player.buildWeaponText(stringBuilder);
+            topRightLabel.setText(stringBuilder);
+        }
     }
 
     @Override
