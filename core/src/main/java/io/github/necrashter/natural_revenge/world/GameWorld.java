@@ -247,13 +247,13 @@ public class GameWorld implements GameWorldRenderer {
     public long playSound(Sound sound, Vector3 position) {
         soundDir.set(position).sub(cam.position);
         float volume = (float) Math.pow(1.1f, -soundDir.len());
-        return sound.play(volume);
+        return sound.play(volume * Main.sfxVolume);
     }
 
     public long playSound(Sound sound, Vector3 position, float volume) {
         soundDir.set(position).sub(cam.position);
         volume *= (float) Math.pow(1.1f, -soundDir.len());
-        return sound.play(volume);
+        return sound.play(volume * Main.sfxVolume);
     }
 
     /* HUD */

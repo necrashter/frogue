@@ -17,6 +17,7 @@ public class Main extends Game {
     public static AssetManager2 assets;
     public static RandomRoller randomRoller;
     public static MusicManager music;
+    public static float sfxVolume = 1.0f;
     public static boolean invertMouseY = false;
     public static float mouseSensitivity = 1.0f; // defaults
     public static float fov = 90f; // default FOV

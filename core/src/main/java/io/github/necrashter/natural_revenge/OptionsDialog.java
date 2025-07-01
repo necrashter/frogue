@@ -19,27 +19,51 @@ public class OptionsDialog extends Dialog {
         content.pad(20);
 
         // --- Volume Slider ---
-        final Label volumeLabel = new Label("Music Volume:", game.skin);
-        final Label volumeValue = new Label(String.valueOf((int)(Main.music.getVolume() * 100)), game.skin);
+        {
+            final Label volumeLabel = new Label("Sound Volume:", game.skin);
+            final Label volumeValue = new Label(String.valueOf((int) (Main.sfxVolume * 100)), game.skin);
 
-        final Slider volumeSlider = new Slider(0f, 100f, 1f, false, game.skin); // volume range from 0 to 100
-        volumeSlider.setValue(Main.music.getVolume() * 100);
-        volumeSlider.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                float volume = volumeSlider.getValue() / 100f;
-                Main.music.setVolume(volume);
-                volumeValue.setText(String.valueOf((int)(volume * 100)));
-            }
-        });
+            final Slider volumeSlider = new Slider(0f, 100f, 1f, false, game.skin); // volume range from 0 to 100
+            volumeSlider.setValue(Main.sfxVolume * 100);
+            volumeSlider.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    Main.sfxVolume = volumeSlider.getValue() / 100f;
+                    volumeValue.setText(String.valueOf((int) (Main.sfxVolume * 100)));
+                }
+            });
 
-        // Layout Volume
-        Table volumeRow = new Table();
-        volumeRow.add(volumeLabel).padRight(10);
-        volumeRow.add(volumeSlider).width(200).padRight(10);
-        volumeRow.add(volumeValue).width(50);
-        content.add(volumeRow).left();
-        content.row().padTop(20);
+            // Layout Volume
+            Table volumeRow = new Table();
+            volumeRow.add(volumeLabel).padRight(10);
+            volumeRow.add(volumeSlider).width(200).padRight(10);
+            volumeRow.add(volumeValue).width(50);
+            content.add(volumeRow).left();
+            content.row().padTop(20);
+        }
+        {
+            final Label volumeLabel = new Label("Music Volume:", game.skin);
+            final Label volumeValue = new Label(String.valueOf((int) (Main.music.getVolume() * 100)), game.skin);
+
+            final Slider volumeSlider = new Slider(0f, 100f, 1f, false, game.skin); // volume range from 0 to 100
+            volumeSlider.setValue(Main.music.getVolume() * 100);
+            volumeSlider.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    float volume = volumeSlider.getValue() / 100f;
+                    Main.music.setVolume(volume);
+                    volumeValue.setText(String.valueOf((int) (volume * 100)));
+                }
+            });
+
+            // Layout Volume
+            Table volumeRow = new Table();
+            volumeRow.add(volumeLabel).padRight(10);
+            volumeRow.add(volumeSlider).width(200).padRight(10);
+            volumeRow.add(volumeValue).width(50);
+            content.add(volumeRow).left();
+            content.row().padTop(20);
+        }
 
         // Invert Mouse
         final CheckBox invertMouseCheckbox = new CheckBox(" Invert Mouse Y", game.skin);

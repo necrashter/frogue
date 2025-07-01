@@ -77,9 +77,9 @@ public class Firearm extends PlayerWeapon {
     public float soundVolume = 1.0f;
     public void playShootSound() {
         float ammoRatio = ((float) ammoInClip / maxAmmoInClip);
-        shootSound.play(soundVolume, ammoRatio*0.25f+soundPitchBase, 0);
+        shootSound.play(soundVolume * Main.sfxVolume, ammoRatio*0.25f+soundPitchBase, 0);
         if (ammoRatio < 0.5f) {
-            Main.assets.gunEmpty.play((0.5f-ammoRatio)*2);
+            Main.assets.gunEmpty.play((0.5f-ammoRatio)*2*Main.sfxVolume);
         }
     }
 
@@ -185,11 +185,11 @@ public class Firearm extends PlayerWeapon {
     void beginReload() {
         if (clips > 1) {
             if (clips < Integer.MAX_VALUE) clips -= 1;
-            reloadSound.play();
+            reloadSound.play(Main.sfxVolume);
             state = State.Reloading;
             progress = 0.0f;
         } else {
-            reloadSound.play(1.0f, 3.0f, 0.0f);
+            reloadSound.play(Main.sfxVolume, 3.0f, 0.0f);
             player.removeActiveWeapon();
         }
     }
