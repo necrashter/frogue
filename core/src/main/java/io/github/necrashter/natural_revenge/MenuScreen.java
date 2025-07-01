@@ -31,7 +31,7 @@ public class MenuScreen implements Screen {
     public MenuScreen(final Main game) {
         this.game = game;
 
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(Main.createViewport());
         Gdx.input.setInputProcessor(stage);
 
         final TextButton start=new TextButton("Start Game",game.skin);

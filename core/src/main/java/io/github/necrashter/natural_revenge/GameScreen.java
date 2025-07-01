@@ -29,6 +29,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Queue;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import io.github.necrashter.natural_revenge.world.GameWorld;
@@ -72,7 +73,7 @@ public class GameScreen implements Screen {
         worldRenderer = new LowResWorldRenderer(world);
 //        worldRenderer = world;
 
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(Main.createViewport());
 
         {
             hurtOverlay = new Image(Main.assets.hurtOverlay);

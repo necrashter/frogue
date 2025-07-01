@@ -6,7 +6,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
 import io.github.necrashter.natural_revenge.world.levels.Level1Swamp;
 import io.github.necrashter.natural_revenge.world.levels.Level2Flying;
 import io.github.necrashter.natural_revenge.world.levels.LevelBossRush;
@@ -32,6 +35,25 @@ public class Main extends Game {
         this.args = args;
     }
 
+    private static float uiScale = 1.0f;
+    public static ScreenViewport viewport;
+    public static ScreenViewport createViewport() {
+        viewport = new ScreenViewport();
+        viewport.setUnitsPerPixel(1.0f/uiScale);
+        return viewport;
+    }
+
+    public static float getUiScale() {
+        return uiScale;
+    }
+
+    public static void setUiScale(float uiScale) {
+        if (viewport != null) {
+            viewport.setUnitsPerPixel(1.0f/uiScale);
+        }
+        Main.uiScale = uiScale;
+    }
+
     @Override
     public void create () {
         skinAtlas = new TextureAtlas(Gdx.files.internal("uiskin.atlas"));
@@ -44,6 +66,9 @@ public class Main extends Game {
         assets = new AssetManager2();
         music = new MusicManager();
         randomRoller = new RandomRoller();
+        if (Main.isMobile()) {
+            uiScale = MathUtils.clamp(((Gdx.graphics.getDensity() / .5783681f) - 1.0f) / 2f + 1f, .5f, 2f);
+        }
         // loading
         while (!assets.update());
         assets.done();
