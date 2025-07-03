@@ -9,29 +9,23 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Queue;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import io.github.necrashter.natural_revenge.ui.TouchPad;
 import io.github.necrashter.natural_revenge.world.GameWorld;
 import io.github.necrashter.natural_revenge.world.GameWorldRenderer;
 import io.github.necrashter.natural_revenge.world.LowResWorldRenderer;
@@ -65,7 +59,7 @@ public class GameScreen implements Screen {
 
     private final Image hurtOverlay;
 
-    public Touchpad movementTouch;
+    public TouchPad movementTouch;
 
     public GameScreen(final Main game, final GameWorld world) {
         this.game = game;
@@ -230,9 +224,9 @@ public class GameScreen implements Screen {
                 stage, world.player.inputAdapter
         ));
         if (Main.isMobile()) {
-            movementTouch = new Touchpad(0, game.skin);
+            movementTouch = new TouchPad(game.skin);
             float touchpadSize = 240f;
-            Container<Touchpad> movementTouchContainer = new Container<>(movementTouch);
+            Container<TouchPad> movementTouchContainer = new Container<>(movementTouch);
             movementTouchContainer.setFillParent(true);
             movementTouchContainer.bottom().left().pad(20).size(touchpadSize);
             hudGroup.addActor(movementTouchContainer);
