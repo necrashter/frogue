@@ -29,6 +29,7 @@ public class OptionsDialog extends Dialog {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     Main.sfxVolume = volumeSlider.getValue() / 100f;
+                    Main.preferences.putFloat("sfxVolume", Main.sfxVolume);
                     volumeValue.setText(String.valueOf((int) (Main.sfxVolume * 100)));
                 }
             });
@@ -52,6 +53,7 @@ public class OptionsDialog extends Dialog {
                 public void changed(ChangeEvent event, Actor actor) {
                     float volume = volumeSlider.getValue() / 100f;
                     Main.music.setVolume(volume);
+                    Main.preferences.putFloat("musicVolume", volume);
                     volumeValue.setText(String.valueOf((int) (volume * 100)));
                 }
             });
@@ -72,6 +74,7 @@ public class OptionsDialog extends Dialog {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Main.invertMouseY = invertMouseCheckbox.isChecked();
+                Main.preferences.putBoolean("invertMouseY", Main.invertMouseY);
             }
         });
 
@@ -89,6 +92,7 @@ public class OptionsDialog extends Dialog {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Main.mouseSensitivity = sensitivitySlider.getValue();
+                Main.preferences.putFloat("mouseSensitivity", Main.mouseSensitivity);
                 mouseSensitivityLabel.setText(Main.float2Decimals(Main.mouseSensitivity));
             }
         });
@@ -105,6 +109,7 @@ public class OptionsDialog extends Dialog {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Main.fov = fovSlider.getValue();
+                Main.preferences.putFloat("fov", Main.fov);
                 fovValue.setText(String.valueOf((int)Main.fov));
                 if (world != null) {
                     world.cam.fieldOfView = Main.fov;
@@ -132,6 +137,11 @@ public class OptionsDialog extends Dialog {
 
         content.add(fovRow).left();
 
-        button("Close"); // Adds a close button
+        button("Close");
+    }
+
+    @Override
+    protected void result(Object object) {
+        Main.preferences.flush();
     }
 }

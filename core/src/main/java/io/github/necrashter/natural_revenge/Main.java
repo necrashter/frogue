@@ -3,6 +3,7 @@ package io.github.necrashter.natural_revenge;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -20,6 +21,7 @@ public class Main extends Game {
     public static AssetManager2 assets;
     public static RandomRoller randomRoller;
     public static MusicManager music;
+    public static Preferences preferences;
     public static float sfxVolume = 1.0f;
     public static boolean invertMouseY = false;
     public static float mouseSensitivity = 1.0f; // defaults
@@ -54,6 +56,15 @@ public class Main extends Game {
         Main.uiScale = uiScale;
     }
 
+    public static void loadPreferences() {
+        preferences = Gdx.app.getPreferences("Preferences");
+        Main.sfxVolume = preferences.getFloat("sfxVolume", Main.sfxVolume);
+        Main.music.setVolume(preferences.getFloat("musicVolume", Main.music.getVolume()));
+        Main.invertMouseY = preferences.getBoolean("invertMouseY", Main.invertMouseY);
+        Main.mouseSensitivity = preferences.getFloat("mouseSensitivity", Main.mouseSensitivity);
+        Main.fov = preferences.getFloat("fov", Main.fov);
+    }
+
     @Override
     public void create () {
         skinAtlas = new TextureAtlas(Gdx.files.internal("uiskin.atlas"));
@@ -66,6 +77,7 @@ public class Main extends Game {
         assets = new AssetManager2();
         music = new MusicManager();
         randomRoller = new RandomRoller();
+        loadPreferences();
         if (Main.isMobile()) {
             uiScale = MathUtils.clamp(((Gdx.graphics.getDensity() / .5783681f) - 1.0f) / 2f + 1f, .5f, 2f);
         }
