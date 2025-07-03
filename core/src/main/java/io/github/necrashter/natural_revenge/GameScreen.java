@@ -707,17 +707,17 @@ public class GameScreen implements Screen {
             String weaponName = getWeaponDisplayName(weapon);
             String weaponType = getWeaponType(weapon);
             Label weaponNameLabel = new Label(weaponName, game.skin);
-            weaponNameLabel.setFontScale(1.4f);
+            weaponNameLabel.setFontScale(1.25f);
             weaponNameLabel.setColor(Color.YELLOW);
 
-            Label weaponTypeLabel = new Label("(" + weaponType + ")", game.skin);
+            Label weaponTypeLabel = new Label("(" + weaponType + ")", game.skin, "small");
             weaponTypeLabel.setFontScale(1.0f);
             weaponTypeLabel.setColor(Color.LIGHT_GRAY);
 
             weaponInfoTable.add(weaponNameLabel).center().row();
             weaponInfoTable.add(weaponTypeLabel).center().padTop(5).row();
 
-            contentTable.add(weaponInfoTable).center().padBottom(40).row();
+            contentTable.add(weaponInfoTable).center().padBottom(8).row();
 
             // Create stats section
             Table statsTable = createDetailedStatsTable(weapon);
@@ -771,13 +771,12 @@ public class GameScreen implements Screen {
 
             // Primary stats section
             Table primaryStats = new Table(game.skin);
-            primaryStats.pad(10);
             primaryStats.setBackground(game.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
 
-            Label primaryTitle = new Label("PRIMARY STATS", game.skin);
-            primaryTitle.setFontScale(1.1f);
-            primaryTitle.setColor(Color.ORANGE);
-            primaryStats.add(primaryTitle).center().padBottom(15).row();
+//            Label primaryTitle = new Label("PRIMARY STATS", game.skin);
+//            primaryTitle.setFontScale(1.1f);
+//            primaryTitle.setColor(Color.ORANGE);
+//            primaryStats.add(primaryTitle).center().padBottom(15).row();
 
             // Damage with color coding
             float damageRatio = Math.min(firearm.damage / 10.0f, 1.0f); // Normalize to 0-1
@@ -785,34 +784,51 @@ public class GameScreen implements Screen {
             Label damageLabel = new Label("Damage: " + Main.float1Decimal(firearm.damage), game.skin);
 //            damageLabel.setColor(damageColor);
 //            damageLabel.setFontScale(1.0f);
-            primaryStats.add(damageLabel).left().padBottom(8).row();
-
-            // Ammo section with progress bar
-            Label ammoLabel = new Label("Ammo: " + firearm.ammoInClip + "/" + firearm.maxAmmoInClip, game.skin);
-            ammoLabel.setFontScale(1.0f);
-            primaryStats.add(ammoLabel).left().padBottom(5).row();
+            primaryStats.add(damageLabel).left().row();
 
 //            ProgressBar ammoBar = new ProgressBar(0, firearm.maxAmmoInClip, 1, false, game.skin2);
 //            ammoBar.setValue(firearm.ammoInClip);
 //            ammoBar.setSize(200, 15);
 //            primaryStats.add(ammoBar).width(200).height(15).padBottom(8).row();
 
-            // Clips
-            Label clipsLabel = new Label("Clips: " + firearm.clips, game.skin);
-            clipsLabel.setFontScale(1.0f);
-            primaryStats.add(clipsLabel).left().row();
+            // Spread
+            Label spreadLabel = new Label("Spread: " + Main.float2Decimals(firearm.spread), game.skin);
+            spreadLabel.setFontScale(1.0f);
+            primaryStats.add(spreadLabel).left().row();
 
-            statsTable.add(primaryStats).width(300).height(230).padRight(20);
+            // Bullets per shot
+            if (firearm.bulletsPerShot > 1) {
+                Label burstLabel = new Label("Bullet/Shot: " + firearm.bulletsPerShot, game.skin);
+//                burstLabel.setColor(Color.ORANGE);
+                burstLabel.setFontScale(1.0f);
+                primaryStats.add(burstLabel).left().row();
+            }
+
+            if (firearm.burstCount > 1) {
+                Label burstLabel = new Label("Burst: " + firearm.burstCount + " bullets", game.skin);
+//                burstLabel.setColor(Color.ORANGE);
+                burstLabel.setFontScale(1.0f);
+                primaryStats.add(burstLabel).left().row();
+            }
+
+            // Knockback
+            if (Math.abs(firearm.knockback) > 0.1f) {
+                Label knockLabel = new Label("Knockback: " + Main.float2Decimals(Math.abs(firearm.knockback)), game.skin);
+                knockLabel.setFontScale(1.0f);
+                primaryStats.add(knockLabel).left().row();
+            }
+
+            statsTable.add(primaryStats).width(300).padRight(20);
 
             // Secondary stats section
             Table secondaryStats = new Table(game.skin);
             secondaryStats.pad(10);
             secondaryStats.setBackground(game.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
 
-            Label secondaryTitle = new Label("WEAPON PROPERTIES", game.skin);
-            secondaryTitle.setFontScale(1.1f);
-            secondaryTitle.setColor(Color.CYAN);
-            secondaryStats.add(secondaryTitle).center().padBottom(15).row();
+//            Label secondaryTitle = new Label("WEAPON PROPERTIES", game.skin);
+//            secondaryTitle.setFontScale(1.1f);
+//            secondaryTitle.setColor(Color.CYAN);
+//            secondaryStats.add(secondaryTitle).center().padBottom(15).row();
 
             // Fire rate with color coding
             float fireRateRatio = Math.min(firearm.recoverySpeed / 10.0f, 1.0f);
@@ -820,41 +836,17 @@ public class GameScreen implements Screen {
             Label fireRateLabel = new Label("Fire Rate: " + Main.float1Decimal(firearm.recoverySpeed), game.skin);
 //            fireRateLabel.setColor(fireRateColor);
             fireRateLabel.setFontScale(1.0f);
-            secondaryStats.add(fireRateLabel).left().padBottom(8).row();
+            secondaryStats.add(fireRateLabel).left().row();
+
+            // Ammo section with progress bar
+            Label ammoLabel = new Label("Clip Size: " + firearm.maxAmmoInClip, game.skin);
+            secondaryStats.add(ammoLabel).left().row();
 
             // Reload speed
             Label reloadLabel = new Label("Reload Speed: " + Main.float1Decimal(firearm.reloadSpeed), game.skin);
-            reloadLabel.setFontScale(1.0f);
-            secondaryStats.add(reloadLabel).left().padBottom(8).row();
+            secondaryStats.add(reloadLabel).left().row();
 
-            // Spread
-            Label spreadLabel = new Label("Spread: " + Main.float2Decimals(firearm.spread), game.skin);
-            spreadLabel.setFontScale(1.0f);
-            secondaryStats.add(spreadLabel).left().padBottom(8).row();
-
-            // Bullets per shot
-            if (firearm.bulletsPerShot > 1) {
-                Label burstLabel = new Label("Bullet/Shot: " + firearm.bulletsPerShot, game.skin);
-//                burstLabel.setColor(Color.ORANGE);
-                burstLabel.setFontScale(1.0f);
-                secondaryStats.add(burstLabel).left().padBottom(8).row();
-            }
-
-            if (firearm.burstCount > 1) {
-                Label burstLabel = new Label("Burst: " + firearm.burstCount + " bullets", game.skin);
-//                burstLabel.setColor(Color.ORANGE);
-                burstLabel.setFontScale(1.0f);
-                secondaryStats.add(burstLabel).left().padBottom(8).row();
-            }
-
-            // Knockback
-            if (Math.abs(firearm.knockback) > 0.1f) {
-                Label knockLabel = new Label("Knockback: " + Main.float2Decimals(Math.abs(firearm.knockback)), game.skin);
-                knockLabel.setFontScale(1.0f);
-                secondaryStats.add(knockLabel).left().row();
-            }
-
-            statsTable.add(secondaryStats).width(300).height(230).padLeft(20);
+            statsTable.add(secondaryStats).width(300).padLeft(20);
         }
 
         return statsTable;
