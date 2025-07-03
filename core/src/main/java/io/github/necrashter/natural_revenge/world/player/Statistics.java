@@ -6,6 +6,7 @@ public class Statistics {
 
     public String mostDamageName = "None";
     public float mostDamage = 0f;
+    public int deaths = 0;
 
     public void update(Firearm firearm) {
         float accuracy = firearm.totalBulletsHit / firearm.totalBulletsShot;

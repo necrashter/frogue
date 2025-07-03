@@ -521,6 +521,7 @@ public class GameScreen implements Screen {
     }
 
     public void playerDied() {
+        world.statistics.deaths += 1;
         final Dialog autoRespawnDialog = new Dialog("You Died!", game.skin);
         final Label countdownLabel = new Label("Respawning in 5...", game.skin);
         autoRespawnDialog.getContentTable().add(countdownLabel).pad(20);
@@ -594,7 +595,8 @@ public class GameScreen implements Screen {
             }
         };
         Label label = new Label(
-        "Most Accurate: (" + Main.float1Decimal(world.statistics.bestAccuracy*100f) + "%)\n"
+            "Player Deaths: " + world.statistics.deaths
+            + "\nMost Accurate: (" + Main.float1Decimal(world.statistics.bestAccuracy*100f) + "%)\n"
             + world.statistics.bestAccuracyName
             + "\nMost Damage: (" + Main.float1Decimal(world.statistics.mostDamage) + ")\n"
             + world.statistics.mostDamageName
