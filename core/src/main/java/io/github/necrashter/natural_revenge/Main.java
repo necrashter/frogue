@@ -127,9 +127,15 @@ public class Main extends Game {
     }
 
     public static String float2Decimals(float f) {
-        return String.valueOf((int)f) + '.' + (int) ((f - (int) f) * 100f);
+        int decimal = MathUtils.round((f - (int) f) * 100f);
+        if (decimal < 10) {
+            return (int) f + ".0" + decimal;
+        } else {
+            return String.valueOf((int)f) + '.' + decimal;
+        }
     }
     public static String float1Decimal(float f) {
-        return String.valueOf((int)f) + '.' + (int) ((f - (int) f) * 10f);
+        int decimal = MathUtils.round((f - (int) f) * 10f);
+        return String.valueOf((int)f) + '.' + decimal;
     }
 }
