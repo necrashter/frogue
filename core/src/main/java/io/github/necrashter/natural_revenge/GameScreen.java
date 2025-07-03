@@ -596,11 +596,11 @@ public class GameScreen implements Screen {
         };
         Label label = new Label(
             "Player Deaths: " + world.statistics.deaths
-            + "\nMost Accurate: (" + Main.float1Decimal(world.statistics.bestAccuracy*100f) + "%)\n"
+            + "\nMost Accurate (" + Main.float1Decimal(world.statistics.bestAccuracy*100f) + "%): "
             + world.statistics.bestAccuracyName
-            + "\nMost Damage: (" + Main.float1Decimal(world.statistics.mostDamage) + ")\n"
+            + "\nMost Damage (" + Main.float1Decimal(world.statistics.mostDamage) + "): "
             + world.statistics.mostDamageName
-        , game.skin);
+        , game.skin, "small");
         dialog.getContentTable().add(label);
         dialog.button("Next Level", 0);
         dialog.getButtonTable().row();
