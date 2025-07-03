@@ -18,6 +18,7 @@ import io.github.necrashter.natural_revenge.world.player.EnumeratingRoller;
 import io.github.necrashter.natural_revenge.world.player.RandomRoller;
 
 public class Main extends Game {
+    public static boolean debugMode = false;
     public static AssetManager2 assets;
     public static RandomRoller randomRoller;
     public static MusicManager music;
@@ -85,10 +86,12 @@ public class Main extends Game {
         while (!assets.update());
         assets.done();
 
-        //this.setScreen(new GameScreen(this, new LevelBossRush(this, 1, 1)));
 
         if (args.length == 0) {
             this.setScreen(new MenuScreen(this));
+        } else if (args[0].equals("debug")) {
+            debugMode = true;
+            this.setScreen(new GameScreen(this, new Level1Swamp(this, 1, 1)));
         } else if (args[0].equals("all-weapons")) {
             String filename = args.length > 1 ? args[1] : "all-weapons.csv";
             EnumeratingRoller.saveAllWeaponsTable(filename);

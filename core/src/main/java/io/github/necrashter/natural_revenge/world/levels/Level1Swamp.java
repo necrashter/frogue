@@ -2,7 +2,6 @@ package io.github.necrashter.natural_revenge.world.levels;
 
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.math.Vector3;
 import io.github.necrashter.natural_revenge.Main;
@@ -219,17 +218,21 @@ public class Level1Swamp extends GameWorld {
 
     @Override
     public void addedToScreen() {
-        this.setScriptedEvent(new Cutscene(new ScriptedEvent[]{
-            screen.subtitle("Welcome to the swamp.\nWe have been dumping our waste here for centuries."),
-            screen.subtitle("But the nature decided to avenge!\nNow the undead is rising here."),
-            screen.subtitle("There might be other threats in the region.\nGood luck!"),
-            new ScriptedEvent.OneTimeEvent() {
-                @Override
-                public void activate() {
-                    setObjective(phaseCountdown);
+        if (Main.debugMode) {
+            setObjective(phaseCountdown);
+        } else {
+            this.setScriptedEvent(new Cutscene(new ScriptedEvent[]{
+                screen.subtitle("Welcome to the swamp.\nWe have been dumping our waste here for centuries."),
+                screen.subtitle("But the nature decided to avenge!\nNow the undead is rising here."),
+                screen.subtitle("There might be other threats in the region.\nGood luck!"),
+                new ScriptedEvent.OneTimeEvent() {
+                    @Override
+                    public void activate() {
+                        setObjective(phaseCountdown);
+                    }
                 }
-            }
-        } ));
+            } ));
+        }
         Main.music.start(Main.music.song1);
     }
 

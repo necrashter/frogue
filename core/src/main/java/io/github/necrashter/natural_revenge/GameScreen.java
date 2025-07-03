@@ -399,6 +399,11 @@ public class GameScreen implements Screen {
         } else {
             world.player.movementInput.setZero();
         }
+        if (Main.debugMode) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
+                gameWon();
+            }
+        }
 
         // Update
         if (currentDialog != null && currentDialog.getStage() == null) {
