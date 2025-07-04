@@ -28,7 +28,7 @@ public class Main extends Game {
     public static float mouseSensitivity = 1.0f; // defaults
     public static float fov = 90f; // default FOV
     private final String[] args;
-    public Skin skin;
+    public static Skin skin;
     public Skin skin2;
 
     TextureAtlas skinAtlas;

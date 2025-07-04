@@ -31,13 +31,13 @@ public class GameEntity implements Damageable, Spatial {
     }
 
     public float damageCalculation(float amount, DamageAgent agent, DamageSource source) {
-        return health -= amount;
+        return health = Math.max(0f, health - amount);
     }
 
     @Override
     public boolean takeDamage(float amount, DamageAgent agent, DamageSource source) {
         if (dead) return false;
-        if (damageCalculation(amount, agent, source) <= 0) {
+        if (damageCalculation(amount, agent, source) <= 0f) {
             die();
             return true;
         }

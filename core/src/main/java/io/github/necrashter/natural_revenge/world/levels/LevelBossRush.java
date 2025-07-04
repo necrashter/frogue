@@ -1,5 +1,6 @@
 package io.github.necrashter.natural_revenge.world.levels;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.MathUtils;
@@ -22,6 +23,7 @@ import io.github.necrashter.natural_revenge.world.entities.Zombie;
 import io.github.necrashter.natural_revenge.world.objects.FrogParticle;
 import io.github.necrashter.natural_revenge.world.objects.RandomGunPickup;
 import io.github.necrashter.natural_revenge.world.player.Player;
+import io.github.necrashter.natural_revenge.world.player.Statistics;
 
 public class LevelBossRush extends GameWorld {
     Zombie.Pool zombiePool;
@@ -78,6 +80,13 @@ public class LevelBossRush extends GameWorld {
         phaseCountdown = new PhaseCountdownObjective();
         clearPhaseObjective = new ClearPhaseObjective();
         killObjective = new KillObjective();
+
+        statistics.recorders.add(new Statistics.FloatRecorder("Boss Health", Color.GREEN) {
+            @Override
+            protected void update() {
+                array.add(getBossHealth());
+            }
+        });
     }
 
     private BossPhase generatePhasesForPhase() {
@@ -265,5 +274,10 @@ public class LevelBossRush extends GameWorld {
         public void buildHudText(StringBuilder stringBuilder) {
             stringBuilder.append(desc);
         }
+    }
+
+    protected float getBossHealth() {
+        if (currentBoss != null) return baseBossHealth + currentBoss.health;
+        else return baseBossHealth;
     }
 }

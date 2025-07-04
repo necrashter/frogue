@@ -11,8 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import io.github.necrashter.natural_revenge.world.GameWorld;
 
 public class OptionsDialog extends Dialog {
-    public OptionsDialog(Main game, GameWorld world) {
-        super("Options", game.skin);
+    public OptionsDialog(GameWorld world) {
+        super("Options", Main.skin);
 
         // Layout inside dialog
         Table content = getContentTable();
@@ -20,10 +20,10 @@ public class OptionsDialog extends Dialog {
 
         // --- Volume Slider ---
         {
-            final Label volumeLabel = new Label("Sound Volume:", game.skin);
-            final Label volumeValue = new Label(String.valueOf((int) (Main.sfxVolume * 100)), game.skin);
+            final Label volumeLabel = new Label("Sound Volume:", Main.skin);
+            final Label volumeValue = new Label(String.valueOf((int) (Main.sfxVolume * 100)), Main.skin);
 
-            final Slider volumeSlider = new Slider(0f, 100f, 1f, false, game.skin); // volume range from 0 to 100
+            final Slider volumeSlider = new Slider(0f, 100f, 1f, false, Main.skin); // volume range from 0 to 100
             volumeSlider.setValue(Main.sfxVolume * 100);
             volumeSlider.addListener(new ChangeListener() {
                 @Override
@@ -43,10 +43,10 @@ public class OptionsDialog extends Dialog {
             content.row().padTop(20);
         }
         {
-            final Label volumeLabel = new Label("Music Volume:", game.skin);
-            final Label volumeValue = new Label(String.valueOf((int) (Main.music.getVolume() * 100)), game.skin);
+            final Label volumeLabel = new Label("Music Volume:", Main.skin);
+            final Label volumeValue = new Label(String.valueOf((int) (Main.music.getVolume() * 100)), Main.skin);
 
-            final Slider volumeSlider = new Slider(0f, 100f, 1f, false, game.skin); // volume range from 0 to 100
+            final Slider volumeSlider = new Slider(0f, 100f, 1f, false, Main.skin); // volume range from 0 to 100
             volumeSlider.setValue(Main.music.getVolume() * 100);
             volumeSlider.addListener(new ChangeListener() {
                 @Override
@@ -68,7 +68,7 @@ public class OptionsDialog extends Dialog {
         }
 
         // Invert Mouse
-        final CheckBox invertMouseCheckbox = new CheckBox(" Invert Mouse Y", game.skin);
+        final CheckBox invertMouseCheckbox = new CheckBox(" Invert Mouse Y", Main.skin);
         invertMouseCheckbox.setChecked(Main.invertMouseY);
         invertMouseCheckbox.addListener(new ChangeListener() {
             @Override
@@ -80,13 +80,13 @@ public class OptionsDialog extends Dialog {
 
         // Sensitivity Slider
         // --- Sensitivity Slider ---
-        final Label sensitivityLabel = new Label("Sensitivity:", game.skin);
+        final Label sensitivityLabel = new Label("Sensitivity:", Main.skin);
         // Display sensitivity with one or two decimal places for better granularity
-        final Label mouseSensitivityLabel = new Label(Main.float2Decimals(Main.mouseSensitivity), game.skin);
+        final Label mouseSensitivityLabel = new Label(Main.float2Decimals(Main.mouseSensitivity), Main.skin);
 
         // Adjust min, max, and step for sensitivity.
         // Example: 0.1f (very slow) to 2.0f (very fast), with steps of 0.05f
-        final Slider sensitivitySlider = new Slider(0.1f, 2.0f, 0.05f, false, game.skin);
+        final Slider sensitivitySlider = new Slider(0.1f, 2.0f, 0.05f, false, Main.skin);
         sensitivitySlider.setValue(Main.mouseSensitivity);
         sensitivitySlider.addListener(new ChangeListener() {
             @Override
@@ -100,10 +100,10 @@ public class OptionsDialog extends Dialog {
         // --- End Sensitivity Slider ---
 
         // --- FOV Slider ---
-        final Label fovLabel = new Label("Field of View:", game.skin);
-        final Label fovValue = new Label(String.valueOf((int)Main.fov), game.skin);
+        final Label fovLabel = new Label("Field of View:", Main.skin);
+        final Label fovValue = new Label(String.valueOf((int)Main.fov), Main.skin);
 
-        final Slider fovSlider = new Slider(30f, 120f, 1f, false, game.skin); // typical FOV range
+        final Slider fovSlider = new Slider(30f, 120f, 1f, false, Main.skin); // typical FOV range
         fovSlider.setValue(Main.fov);
         fovSlider.addListener(new ChangeListener() {
             @Override

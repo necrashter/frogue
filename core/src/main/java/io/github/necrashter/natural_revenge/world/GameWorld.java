@@ -107,6 +107,9 @@ public class GameWorld implements GameWorldRenderer {
     public static final float DELTA_LIMIT = 4/30.0f;
     public float accumulatedDelta = 0.0f;
 
+    public static final float STAT_PERIOD = 1f;
+    private float statTimer = 0f;
+
     public void gameUpdate(float dt) {
         octree.update(dt);
         decalPool.update(cam, dt);
@@ -115,6 +118,10 @@ public class GameWorld implements GameWorldRenderer {
         }
         if (objective != null) {
             objective.update(dt);
+        }
+        if ((statTimer += dt) >= STAT_PERIOD) {
+            statistics.updateRecorders();
+            statTimer -= STAT_PERIOD;
         }
     }
 

@@ -1,5 +1,6 @@
 package io.github.necrashter.natural_revenge.world.levels;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.MathUtils;
@@ -18,6 +19,7 @@ import io.github.necrashter.natural_revenge.world.objects.FrogParticle;
 import io.github.necrashter.natural_revenge.world.objects.RandomGunPickup;
 import io.github.necrashter.natural_revenge.world.player.AkRifle;
 import io.github.necrashter.natural_revenge.world.player.Player;
+import io.github.necrashter.natural_revenge.world.player.Statistics;
 
 public class Level2Flying extends GameWorld {
     Zombie.Pool zombiePool;
@@ -94,6 +96,13 @@ public class Level2Flying extends GameWorld {
                 }
             },
         };
+
+        statistics.recorders.add(new Statistics.FloatRecorder("Boss Health", Color.GREEN) {
+            @Override
+            protected void update() {
+                array.add(getBossHealth());
+            }
+        });
     }
 
     void initiatePhase() {
@@ -283,5 +292,10 @@ public class Level2Flying extends GameWorld {
             // Only propulsion rifle is present
             player.addWeapon(RandomGunPickup.generateWeapon(Main.randomRoller), true);
         }
+    }
+
+    protected float getBossHealth() {
+        if (currentBoss != null) return baseBossHealth + currentBoss.health;
+        else return baseBossHealth;
     }
 }

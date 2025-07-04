@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -215,6 +216,13 @@ public class Player extends GameEntity {
         // Quick cheat for debugging
         // maxHealth = Float.POSITIVE_INFINITY;
         // health = Float.POSITIVE_INFINITY;
+
+        world.statistics.recorders.add(new Statistics.FloatRecorder("Player Health", Color.RED) {
+            @Override
+            protected void update() {
+                array.add(health);
+            }
+        });
     }
 
     public Ray aim;

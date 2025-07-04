@@ -25,6 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Queue;
 
+import io.github.necrashter.natural_revenge.ui.GameOverDialog;
 import io.github.necrashter.natural_revenge.ui.TouchPad;
 import io.github.necrashter.natural_revenge.world.GameWorld;
 import io.github.necrashter.natural_revenge.world.GameWorldRenderer;
@@ -203,7 +204,7 @@ public class GameScreen implements Screen {
                 button.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        new OptionsDialog(game, world).show(stage);
+                        new OptionsDialog(world).show(stage);
                     }
                 });
                 pauseDialog.getButtonTable().add(button).height(button.getHeight()).width(button.getWidth()).row();
@@ -401,7 +402,7 @@ public class GameScreen implements Screen {
         }
         if (Main.debugMode) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
-                gameWon();
+                gameOver(false);
             }
         }
 
@@ -582,31 +583,10 @@ public class GameScreen implements Screen {
         hurtOverlay.addAction(Actions.fadeOut(0.5f));
     }
 
-    public void gameWon() {
-        Dialog dialog = new Dialog("Level Complete!", game.skin) {
-            @Override
-            protected void result(Object object) {
-                int i = (int) object;
-                switch (i) {
-                    case 0: nextLevel(); break;
-                    case 1: mainMenu(); break;
-                }
-            }
-        };
-        Label label = new Label(
-            "Player Deaths: " + world.statistics.deaths
-            + "\nMost Accurate (" + Main.float1Decimal(world.statistics.bestAccuracy*100f) + "%): "
-            + world.statistics.bestAccuracyName
-            + "\nMost Damage (" + Main.float1Decimal(world.statistics.mostDamage) + "): "
-            + world.statistics.mostDamageName
-        , game.skin, "small");
-        dialog.getContentTable().add(label);
-        dialog.button("Next Level", 0);
-        dialog.getButtonTable().row();
-        dialog.button("Main Menu", 1);
-        dialog.padTop(new GlyphLayout(game.skin.getFont("default-font"),"Pause Menu").height*1.2f);
-        dialog.padLeft(16); dialog.padRight(16);
+    public void gameOver(boolean win) {
+        GameOverDialog dialog = new GameOverDialog(win, world, this);
         showDialog(dialog, true);
+        dialog.create();
     }
 
     public void mainMenu() {
@@ -672,7 +652,7 @@ public class GameScreen implements Screen {
     public class WinGameEvent extends ScriptedEvent.OneTimeEvent {
         @Override
         public void activate() {
-            gameWon();
+            gameOver(true);
         }
     }
 
