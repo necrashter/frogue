@@ -21,6 +21,6 @@ public class GwtLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
-            return new Main();
+            return new Main(null);
         }
 }

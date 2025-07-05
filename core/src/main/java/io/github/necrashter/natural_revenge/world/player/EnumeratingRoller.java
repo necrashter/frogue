@@ -1,8 +1,6 @@
 package io.github.necrashter.natural_revenge.world.player;
 import com.badlogic.gdx.utils.Array;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import io.github.necrashter.natural_revenge.world.objects.RandomGunPickup;
@@ -86,28 +84,27 @@ public class EnumeratingRoller implements Roller {
         return out;
     }
 
-    public static void saveAllWeaponsTable(String filename) {
+    public static void appendAllWeaponsCSV(Appendable appendable) throws IOException {
         EnumeratingRoller roller = new EnumeratingRoller();
+        appendable.append("HashName,P,DPS,Acc1,Acc5,Acc10,Acc15,Acc25\n");
+        do {
+            Firearm firearm = RandomGunPickup.generateWeapon(roller);
+            float p = roller.getProbability();
+            float dps = firearm.computeDPS();
+            float acc1 = firearm.computeAccuracy(1f, 0.375f);
+            float acc5 = firearm.computeAccuracy(5f, 0.375f);
+            float acc10 = firearm.computeAccuracy(10f, 0.375f);
+            float acc15 = firearm.computeAccuracy(15f, 0.375f);
+            float acc25 = firearm.computeAccuracy(25f, 0.375f);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-            writer.write("HashName,P,DPS,Acc1,Acc5,Acc10,Acc15,Acc25\n");
-
-            do {
-                Firearm firearm = RandomGunPickup.generateWeapon(roller);
-                float p = roller.getProbability();
-                float dps = firearm.computeDPS();
-                float acc1 = firearm.computeAccuracy(1f, 0.375f);
-                float acc5 = firearm.computeAccuracy(5f, 0.375f);
-                float acc10 = firearm.computeAccuracy(10f, 0.375f);
-                float acc15 = firearm.computeAccuracy(15f, 0.375f);
-                float acc25 = firearm.computeAccuracy(25f, 0.375f);
-
-                writer.write("\"" + firearm.hashName() + "\"," + p + "," + dps + ","
-                    + acc1 + "," + acc5 + "," + acc10 + "," + acc15 + "," + acc25 + "\n");
-            } while (roller.nextItem());
-
-        } catch (IOException e) {
-            System.err.println("Error writing to file: " + e.getMessage());
-        }
+            appendable.append("\"").append(firearm.hashName()).append("\",");
+            appendable.append(String.valueOf(p)).append(",")
+                .append(String.valueOf(dps)).append(",")
+                .append(String.valueOf(acc1)).append(",")
+                .append(String.valueOf(acc5)).append(",")
+                .append(String.valueOf(acc10)).append(",")
+                .append(String.valueOf(acc15)).append(",")
+                .append(String.valueOf(acc25)).append("\n");
+        } while (roller.nextItem());
     }
 }

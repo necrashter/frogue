@@ -27,15 +27,19 @@ public class Main extends Game {
     public static boolean invertMouseY = false;
     public static float mouseSensitivity = 1.0f; // defaults
     public static float fov = 90f; // default FOV
-    private final String[] args;
+    private final PostInit postInit;
     public static Skin skin;
     public Skin skin2;
 
+    public abstract static class PostInit {
+        public abstract void run(Main main);
+    }
+
     TextureAtlas skinAtlas;
 
-    public Main(String[] args) {
+    public Main(PostInit postInit) {
         super();
-        this.args = args;
+        this.postInit = postInit;
     }
 
     private static float uiScale = 1.0f;
@@ -86,19 +90,10 @@ public class Main extends Game {
         while (!assets.update());
         assets.done();
 
-
-        if (args.length == 0) {
-            this.setScreen(new MenuScreen(this));
-        } else if (args[0].equals("debug")) {
-            debugMode = true;
-            this.setScreen(new GameScreen(this, new Level1Swamp(this, 1, 1)));
-        } else if (args[0].equals("all-weapons")) {
-            String filename = args.length > 1 ? args[1] : "all-weapons.csv";
-            EnumeratingRoller.saveAllWeaponsTable(filename);
-            System.exit(0);
+        if (postInit != null) {
+            postInit.run(this);
         } else {
-            System.err.println("Unknown CLI arguments.");
-            System.exit(1);
+            this.setScreen(new MenuScreen(this));
         }
     }
 
