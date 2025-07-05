@@ -390,17 +390,17 @@ public class GameScreen implements Screen {
             }
         }
         if (!world.player.inputAdapter.disabled) {
-            if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-                delta *= 0.1f;
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
-                delta *= 0.1f;
-            }
             getPlayerMovement(world.player.movementInput);
         } else {
             world.player.movementInput.setZero();
         }
         if (Main.debugMode) {
+            if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+                delta *= 4f;
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
+                delta *= 0.1f;
+            }
             if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
                 gameOver(false);
             }
