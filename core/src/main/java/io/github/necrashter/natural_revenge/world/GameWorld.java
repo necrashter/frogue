@@ -164,7 +164,9 @@ public class GameWorld implements GameWorldRenderer {
         ScreenUtils.clear(0f, 0f, 0f, 0.0f, true);
 
         modelBatch.begin(cam);
-        player.renderViewModel(this);
+        if (player != null) {
+            player.renderViewModel(this);
+        }
         decalPool.render(this);
         modelBatch.end();
         decalBatch.flush();
