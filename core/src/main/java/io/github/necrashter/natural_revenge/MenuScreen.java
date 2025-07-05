@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -16,7 +15,6 @@ import com.badlogic.gdx.utils.TimeUtils;
 public class MenuScreen implements Screen {
     final Main game;
     private final Stage stage;
-    private Label mouseSensitivityLabel;
 
     public MenuScreen(final Main game) {
         this.game = game;
@@ -24,7 +22,7 @@ public class MenuScreen implements Screen {
         stage = new Stage(Main.createViewport());
         Gdx.input.setInputProcessor(stage);
 
-        final TextButton start=new TextButton("Start Game",game.skin);
+        final TextButton start=new TextButton("Start Game", Main.skin);
         start.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -32,7 +30,7 @@ public class MenuScreen implements Screen {
             }
         });
 
-        final TextButton levelSelect=new TextButton("Level Select",game.skin);
+        final TextButton levelSelect=new TextButton("Level Select", Main.skin);
         levelSelect.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -40,7 +38,7 @@ public class MenuScreen implements Screen {
             }
         });
 
-        final TextButton optionsButton = new TextButton("Options", game.skin);
+        final TextButton optionsButton = new TextButton("Options", Main.skin);
         optionsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -49,7 +47,7 @@ public class MenuScreen implements Screen {
         });
 
 
-        TextButton exit=new TextButton("Exit",game.skin);
+        TextButton exit=new TextButton("Exit", Main.skin);
         exit.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -82,7 +80,7 @@ public class MenuScreen implements Screen {
     }
 
     public void levelSelectDialog() {
-        Dialog dialog = new Dialog("Select Level", game.skin) {
+        Dialog dialog = new Dialog("Select Level", Main.skin) {
             @Override
             protected void result(Object object) {
                 int i = (int) object;
@@ -99,7 +97,7 @@ public class MenuScreen implements Screen {
 //        dialog.getButtonTable().row();
         dialog.button("Boss Rush", 3);
 //        dialog.getButtonTable().row();
-        dialog.padTop(new GlyphLayout(game.skin.getFont("default-font"),"Pause Menu").height*1.2f);
+        dialog.padTop(new GlyphLayout(Main.skin.getFont("default-font"),"Pause Menu").height*1.2f);
         dialog.padLeft(16); dialog.padRight(16);
         dialog.show(stage);
     }

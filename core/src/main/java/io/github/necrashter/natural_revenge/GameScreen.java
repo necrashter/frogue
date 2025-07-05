@@ -39,7 +39,7 @@ public class GameScreen implements Screen {
     final Main game;
 
     public final GameWorld world;
-    private GameWorldRenderer worldRenderer;
+    private final GameWorldRenderer worldRenderer;
 
     private final Stage stage;
 
@@ -85,15 +85,15 @@ public class GameScreen implements Screen {
             hudGroup = new WidgetGroup();
             hudGroup.setFillParent(true);
 
-            topLeftLabel = new Label("f", game.skin);
+            topLeftLabel = new Label("f", Main.skin);
             Container<Label> labelContainer = new Container<>(topLeftLabel);
             labelContainer.setFillParent(true);
             labelContainer.top().left().pad(20);
             hudGroup.addActor(labelContainer);
 
-            topRightWeaponsLabel = new Label("f", game.skin);
+            topRightWeaponsLabel = new Label("f", Main.skin);
             topRightWeaponsLabel.setAlignment(Align.right);
-            topRightLabel = new Label("f", game.skin);
+            topRightLabel = new Label("f", Main.skin);
             topRightLabel.setAlignment(Align.right);
             topRightTable = new Table();
             topRightTable.setFillParent(true);
@@ -102,7 +102,7 @@ public class GameScreen implements Screen {
             topRightTable.add(topRightLabel).right().row();
             hudGroup.addActor(topRightTable);
 
-            bottomLabel = new Label("", game.skin);
+            bottomLabel = new Label("", Main.skin);
             Container<Label> labelContainer1 = new Container<>(bottomLabel);
             labelContainer1.setFillParent(true);
             labelContainer1.center().padTop(200f);
@@ -128,14 +128,14 @@ public class GameScreen implements Screen {
             backgroundContainer.fill(1.0f, 0.33f).bottom();
             subtitleGroup.addActor(backgroundContainer);
 
-            subtitleLabel = new Label("", game.skin);
+            subtitleLabel = new Label("", Main.skin);
             Container<Label> labelContainer1 = new Container<>(subtitleLabel);
             labelContainer1.setFillParent(true);
             labelContainer1.center().bottom().padBottom(80f);
             subtitleGroup.addActor(labelContainer1);
 
             if (Main.isMobile()) {
-                TextButton nextButton = new TextButton("Next", game.skin);
+                TextButton nextButton = new TextButton("Next", Main.skin);
                 nextButton.addListener(new InputListener() {
                     @Override
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -148,7 +148,7 @@ public class GameScreen implements Screen {
                 nextButtonContainer.pad(40).align(Align.right | Align.center);
                 subtitleGroup.addActor(nextButtonContainer);
             } else {
-                Label label1 = new Label("Press SPACE to continue...", game.skin, "old-font", Color.WHITE);
+                Label label1 = new Label("Press SPACE to continue...", Main.skin, "old-font", Color.WHITE);
                 Container<Label> labelContainer2 = new Container<>(label1);
                 labelContainer2.setFillParent(true);
                 labelContainer2.center().bottom().padBottom(10f);
@@ -161,13 +161,13 @@ public class GameScreen implements Screen {
         }
 
         {
-            pauseDialog = new Dialog("Pause Menu", game.skin);
+            pauseDialog = new Dialog("Pause Menu", Main.skin);
 
-            pauseDialog.padTop(new GlyphLayout(game.skin.getFont("default-font"),"Pause Menu").height*1.2f);
+            pauseDialog.padTop(new GlyphLayout(Main.skin.getFont("default-font"),"Pause Menu").height*1.2f);
             pauseDialog.padLeft(16); pauseDialog.padRight(16);
 
             {
-                final TextButton button = new TextButton("Resume", game.skin);
+                final TextButton button = new TextButton("Resume", Main.skin);
                 button.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
@@ -178,7 +178,7 @@ public class GameScreen implements Screen {
             }
 
             {
-                final TextButton button = new TextButton("Restart Level", game.skin);
+                final TextButton button = new TextButton("Restart Level", Main.skin);
                 button.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
@@ -189,7 +189,7 @@ public class GameScreen implements Screen {
             }
 
             {
-                final TextButton button = new TextButton("Weapon Stats", game.skin);
+                final TextButton button = new TextButton("Weapon Stats", Main.skin);
                 button.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
@@ -200,7 +200,7 @@ public class GameScreen implements Screen {
             }
 
             {
-                final TextButton button = new TextButton("Options", game.skin);
+                final TextButton button = new TextButton("Options", Main.skin);
                 button.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
@@ -211,7 +211,7 @@ public class GameScreen implements Screen {
             }
 
             {
-                final TextButton button = new TextButton("Exit Game", game.skin);
+                final TextButton button = new TextButton("Exit Game", Main.skin);
                 button.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
@@ -225,14 +225,14 @@ public class GameScreen implements Screen {
                 stage, world.player.inputAdapter
         ));
         if (Main.isMobile()) {
-            movementTouch = new TouchPad(game.skin);
+            movementTouch = new TouchPad(Main.skin);
             float touchpadSize = 240f;
             Container<TouchPad> movementTouchContainer = new Container<>(movementTouch);
             movementTouchContainer.setFillParent(true);
             movementTouchContainer.bottom().left().pad(20).size(touchpadSize);
             hudGroup.addActor(movementTouchContainer);
 
-            TextButton jumpButton = new TextButton("JUMP", game.skin);
+            TextButton jumpButton = new TextButton("JUMP", Main.skin);
             jumpButton.addListener(new InputListener() {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -247,7 +247,7 @@ public class GameScreen implements Screen {
             shootButtonContainer.pad(40).align(Align.bottomRight);
             hudGroup.addActor(shootButtonContainer);
 
-            TextButton menuButton = new TextButton("Menu", game.skin);
+            TextButton menuButton = new TextButton("Menu", Main.skin);
             menuButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -259,14 +259,14 @@ public class GameScreen implements Screen {
             menuButtonContainer.pad(20).align(Align.center | Align.top);
             stage.addActor(menuButtonContainer);
 
-            TextButton useButton = new TextButton("USE", game.skin);
+            TextButton useButton = new TextButton("USE", Main.skin);
             useButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     world.player.useKeyPressed();
                 }
             });
-            TextButton reloadButton = new TextButton("RELOAD", game.skin);
+            TextButton reloadButton = new TextButton("RELOAD", Main.skin);
             reloadButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -278,14 +278,14 @@ public class GameScreen implements Screen {
             reloadContainer.pad(20).align(Align.left | Align.center).padBottom(100f);
             stage.addActor(reloadContainer);
 
-            TextButton prevWeaponButton = new TextButton("PREV", game.skin);
+            TextButton prevWeaponButton = new TextButton("PREV", Main.skin);
             prevWeaponButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     world.player.prevWeapon();
                 }
             });
-            TextButton nextWeaponButton = new TextButton("NEXT", game.skin);
+            TextButton nextWeaponButton = new TextButton("NEXT", Main.skin);
             nextWeaponButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -297,7 +297,7 @@ public class GameScreen implements Screen {
             prevNextTable.add(nextWeaponButton);
             topRightTable.add(prevNextTable).right().row();
 
-            TextButton adsButton = new TextButton("ADS", game.skin);
+            TextButton adsButton = new TextButton("ADS", Main.skin);
             adsButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -326,8 +326,8 @@ public class GameScreen implements Screen {
     public Container<ProgressBar> progressBarContainer;
     public Container<Label> progressBarLabelContainer;
     public void addProgress(String name, float max) {
-        progressBar = new ProgressBar(0.0f, max, 1.0f, false, game.skin2);
-        progressBarLabel = new Label(name, game.skin);
+        progressBar = new ProgressBar(0.0f, max, 1.0f, false, Main.skin2);
+        progressBarLabel = new Label(name, Main.skin);
         progressBarContainer = new Container<>(progressBar);
         progressBarContainer.setFillParent(true);
         progressBarContainer.center().top().padTop(90f);
@@ -522,8 +522,8 @@ public class GameScreen implements Screen {
 
     public void playerDied() {
         world.statistics.deaths += 1;
-        final Dialog autoRespawnDialog = new Dialog("You Died!", game.skin);
-        final Label countdownLabel = new Label("Respawning in 5...", game.skin);
+        final Dialog autoRespawnDialog = new Dialog("You Died!", Main.skin);
+        final Label countdownLabel = new Label("Respawning in 5...", Main.skin);
         autoRespawnDialog.getContentTable().add(countdownLabel).pad(20);
         showDialog(autoRespawnDialog, false);
         world.player.inputAdapter.disabled = true;
@@ -542,7 +542,7 @@ public class GameScreen implements Screen {
             Actions.run(() -> countdownLabel.setText("Respawning in 1...")),
             Actions.delay(1f),
             Actions.run(() -> countdownLabel.setText("Respawning...")),
-            Actions.run(() -> autoRespawnDialog.hide()),
+            Actions.run(autoRespawnDialog::hide),
             Actions.run(() -> {
                 world.player.inputAdapter.disabled = false;
                 world.player.health = world.player.maxHealth;
@@ -661,19 +661,19 @@ public class GameScreen implements Screen {
     }
 
     private void showWeaponInventoryDialog() {
-        final Dialog weaponDialog = new Dialog("Current Weapon", game.skin);
+        final Dialog weaponDialog = new Dialog("Current Weapon", Main.skin);
 
         // Set dialog size to fit screen (1280x720)
         weaponDialog.setSize(900, 600);
-        weaponDialog.setPosition((1280 - 900) / 2, (720 - 600) / 2);
+        weaponDialog.setPosition((1280 - 900) / 2f, (720 - 600) / 2f);
 
         // Create content table
-        Table contentTable = new Table(game.skin);
+        Table contentTable = new Table(Main.skin);
         contentTable.pad(30);
 
         // Check if player has an equipped weapon
         if (world.player.activeWeapon == null) {
-            Label noWeaponLabel = new Label("No weapon equipped", game.skin);
+            Label noWeaponLabel = new Label("No weapon equipped", Main.skin);
             noWeaponLabel.setFontScale(1.5f);
             noWeaponLabel.setColor(Color.GRAY);
             contentTable.add(noWeaponLabel).center().padTop(100);
@@ -681,16 +681,16 @@ public class GameScreen implements Screen {
             PlayerWeapon weapon = world.player.activeWeapon;
 
             // Create main weapon info section
-            Table weaponInfoTable = new Table(game.skin);
+            Table weaponInfoTable = new Table(Main.skin);
 
             // Weapon name with type indicator
             String weaponName = getWeaponDisplayName(weapon);
             String weaponType = getWeaponType(weapon);
-            Label weaponNameLabel = new Label(weaponName, game.skin);
+            Label weaponNameLabel = new Label(weaponName, Main.skin);
             weaponNameLabel.setFontScale(1.25f);
             weaponNameLabel.setColor(Color.YELLOW);
 
-            Label weaponTypeLabel = new Label("(" + weaponType + ")", game.skin, "small");
+            Label weaponTypeLabel = new Label("(" + weaponType + ")", Main.skin, "small");
             weaponTypeLabel.setFontScale(1.0f);
             weaponTypeLabel.setColor(Color.LIGHT_GRAY);
 
@@ -714,7 +714,7 @@ public class GameScreen implements Screen {
         weaponDialog.getContentTable().add(contentTable);
 
         // Add close button
-        TextButton closeButton = new TextButton("Close", game.skin);
+        TextButton closeButton = new TextButton("Close", Main.skin);
         closeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -743,15 +743,15 @@ public class GameScreen implements Screen {
     }
 
     private Table createDetailedStatsTable(PlayerWeapon weapon) {
-        Table statsTable = new Table(game.skin);
+        Table statsTable = new Table(Main.skin);
         statsTable.pad(20);
 
         if (weapon instanceof Firearm) {
             Firearm firearm = (Firearm) weapon;
 
             // Primary stats section
-            Table primaryStats = new Table(game.skin);
-            primaryStats.setBackground(game.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
+            Table primaryStats = new Table(Main.skin);
+            primaryStats.setBackground(Main.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
 
 //            Label primaryTitle = new Label("PRIMARY STATS", game.skin);
 //            primaryTitle.setFontScale(1.1f);
@@ -761,7 +761,7 @@ public class GameScreen implements Screen {
             // Damage with color coding
             float damageRatio = Math.min(firearm.damage / 10.0f, 1.0f); // Normalize to 0-1
 //            Color damageColor = new Color(1.0f, 1.0f - damageRatio * 0.5f, 0.0f, 1.0f); // Green to Red
-            Label damageLabel = new Label("Damage: " + Main.float1Decimal(firearm.damage), game.skin);
+            Label damageLabel = new Label("Damage: " + Main.float1Decimal(firearm.damage), Main.skin);
 //            damageLabel.setColor(damageColor);
 //            damageLabel.setFontScale(1.0f);
             primaryStats.add(damageLabel).left().row();
@@ -772,20 +772,20 @@ public class GameScreen implements Screen {
 //            primaryStats.add(ammoBar).width(200).height(15).padBottom(8).row();
 
             // Spread
-            Label spreadLabel = new Label("Spread: " + Main.float2Decimals(firearm.spread), game.skin);
+            Label spreadLabel = new Label("Spread: " + Main.float2Decimals(firearm.spread), Main.skin);
             spreadLabel.setFontScale(1.0f);
             primaryStats.add(spreadLabel).left().row();
 
             // Bullets per shot
             if (firearm.bulletsPerShot > 1) {
-                Label burstLabel = new Label("Bullet/Shot: " + firearm.bulletsPerShot, game.skin);
+                Label burstLabel = new Label("Bullet/Shot: " + firearm.bulletsPerShot, Main.skin);
 //                burstLabel.setColor(Color.ORANGE);
                 burstLabel.setFontScale(1.0f);
                 primaryStats.add(burstLabel).left().row();
             }
 
             if (firearm.burstCount > 1) {
-                Label burstLabel = new Label("Burst: " + firearm.burstCount + " bullets", game.skin);
+                Label burstLabel = new Label("Burst: " + firearm.burstCount + " bullets", Main.skin);
 //                burstLabel.setColor(Color.ORANGE);
                 burstLabel.setFontScale(1.0f);
                 primaryStats.add(burstLabel).left().row();
@@ -793,7 +793,7 @@ public class GameScreen implements Screen {
 
             // Knockback
             if (Math.abs(firearm.knockback) > 0.1f) {
-                Label knockLabel = new Label("Knockback: " + Main.float2Decimals(Math.abs(firearm.knockback)), game.skin);
+                Label knockLabel = new Label("Knockback: " + Main.float2Decimals(Math.abs(firearm.knockback)), Main.skin);
                 knockLabel.setFontScale(1.0f);
                 primaryStats.add(knockLabel).left().row();
             }
@@ -801,9 +801,9 @@ public class GameScreen implements Screen {
             statsTable.add(primaryStats).width(300).padRight(20);
 
             // Secondary stats section
-            Table secondaryStats = new Table(game.skin);
+            Table secondaryStats = new Table(Main.skin);
             secondaryStats.pad(10);
-            secondaryStats.setBackground(game.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
+            secondaryStats.setBackground(Main.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
 
 //            Label secondaryTitle = new Label("WEAPON PROPERTIES", game.skin);
 //            secondaryTitle.setFontScale(1.1f);
@@ -813,17 +813,17 @@ public class GameScreen implements Screen {
             // Fire rate with color coding
             float fireRateRatio = Math.min(firearm.recoverySpeed / 10.0f, 1.0f);
 //            Color fireRateColor = new Color(0.0f, 0.5f + fireRateRatio * 0.5f, 1.0f, 1.0f); // Blue to Cyan
-            Label fireRateLabel = new Label("Fire Rate: " + Main.float1Decimal(firearm.recoverySpeed), game.skin);
+            Label fireRateLabel = new Label("Fire Rate: " + Main.float1Decimal(firearm.recoverySpeed), Main.skin);
 //            fireRateLabel.setColor(fireRateColor);
             fireRateLabel.setFontScale(1.0f);
             secondaryStats.add(fireRateLabel).left().row();
 
             // Ammo section with progress bar
-            Label ammoLabel = new Label("Clip Size: " + firearm.maxAmmoInClip, game.skin);
+            Label ammoLabel = new Label("Clip Size: " + firearm.maxAmmoInClip, Main.skin);
             secondaryStats.add(ammoLabel).left().row();
 
             // Reload speed
-            Label reloadLabel = new Label("Reload Speed: " + Main.float1Decimal(firearm.reloadSpeed), game.skin);
+            Label reloadLabel = new Label("Reload Speed: " + Main.float1Decimal(firearm.reloadSpeed), Main.skin);
             secondaryStats.add(reloadLabel).left().row();
 
             statsTable.add(secondaryStats).width(300).padLeft(20);
@@ -832,31 +832,31 @@ public class GameScreen implements Screen {
         return statsTable;
     }
     private Table createCalculatedStats(Firearm firearm) {
-        Table calculatedStats = new Table(game.skin);
+        Table calculatedStats = new Table(Main.skin);
         calculatedStats.pad(10);
-        calculatedStats.setBackground(game.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
+        calculatedStats.setBackground(Main.skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.5f)));
 
         float dps = firearm.computeDPS();
         float[] distances = new float[] {1f, 5f, 10f, 15f, 20f, 25f};
 
         // Top-left empty cell
-        Label distanceTitle = new Label("Distance", game.skin);
+        Label distanceTitle = new Label("Distance", Main.skin);
         calculatedStats.add(distanceTitle).padRight(16);
 
         // Add column headers: distances
         for (float distance : distances) {
-            Label distanceLabel = new Label(String.valueOf((int)distance) + 'm', game.skin);
+            Label distanceLabel = new Label(String.valueOf((int)distance) + 'm', Main.skin);
             calculatedStats.add(distanceLabel).center().padRight(16);
         }
         calculatedStats.row().padBottom(16);
 
         // Accuracy row
-        Label accuracyTitle = new Label("Accuracy", game.skin);
+        Label accuracyTitle = new Label("Accuracy", Main.skin);
         calculatedStats.add(accuracyTitle).padRight(16);
         for (float distance : distances) {
             float accuracy = firearm.computeAccuracy(distance, 0.375f);
             Color accuracyColor = Color.RED.cpy().lerp(Color.GREEN, MathUtils.clamp((accuracy - .5f) * 2f, 0f, 1f));
-            Label accuracyLabel = new Label(String.valueOf(MathUtils.round(accuracy * 100f)) + '%', game.skin);
+            Label accuracyLabel = new Label(String.valueOf(MathUtils.round(accuracy * 100f)) + '%', Main.skin);
             accuracyLabel.setColor(accuracyColor);
             accuracyLabel.setFontScale(1.0f);
             calculatedStats.add(accuracyLabel).center().padRight(16);
@@ -864,13 +864,13 @@ public class GameScreen implements Screen {
         calculatedStats.row();
 
         // DPS row
-        Label dpsTitle = new Label("DPS", game.skin);
+        Label dpsTitle = new Label("DPS", Main.skin);
         calculatedStats.add(dpsTitle).padRight(16);
         for (float distance : distances) {
             float accuracy = firearm.computeAccuracy(distance, 0.375f);
             float effectiveDps = accuracy * dps;
             Color dpsColor = Color.RED.cpy().lerp(Color.GREEN, MathUtils.clamp((effectiveDps - 5f) / 50f, 0f, 1f));
-            Label dpsLabel = new Label(Main.float2Decimals(effectiveDps), game.skin);
+            Label dpsLabel = new Label(Main.float2Decimals(effectiveDps), Main.skin);
             dpsLabel.setColor(dpsColor);
             dpsLabel.setFontScale(1.0f);
             calculatedStats.add(dpsLabel).center().padRight(16);

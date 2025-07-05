@@ -29,7 +29,7 @@ public class Main extends Game {
     public static float fov = 90f; // default FOV
     private final PostInit postInit;
     public static Skin skin;
-    public Skin skin2;
+    public static Skin skin2;
 
     public abstract static class PostInit {
         public abstract void run(Main main);
