@@ -40,6 +40,12 @@ public class GameOverDialog extends Dialog {
         int w = MathUtils.floor(getContentTable().getWidth() - 8);
         int h = MathUtils.floor(getContentTable().getHeight() - 64);
 
+        if (w <= 0 || h <= 0) {
+            // Failed to determine size
+            w = 1280;
+            h = 720;
+        }
+
         TabPane tabPane = new TabPane(getContentTable());
         {
             Table contentTable = new Table(Main.skin);
