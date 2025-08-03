@@ -4,6 +4,10 @@ An open-source FPS game made for [libGDX Jam 33](https://itch.io/jam/libgdx-jam-
 
 Play the game [here on itch.io](https://necrashter.itch.io/frogue).
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/io.github.necrashter.natural_revenge/)
+
 ## Platforms
 
 - `core`: Main module with the application logic shared by all platforms.
